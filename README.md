@@ -7,20 +7,13 @@
 ## Description
 `BayesRL` is a Python library for reinforcement learning using Bayesian approaches. As it is currently in development, we start by implementing a system for solving (PO)MDPs using ...
 
+Examples can be found in the directory `examples/`. More documentation can be found in the [wiki](../../wiki).
+
 ## Installation
 To install from pip, run
 ```{bash}
-pip install https://github.com/dustinvtran/bayesrl/archive/master.zip
+pip install -e "git+https://github.com/dustinvtran/bayesrl.git#egg=bayesrl"
 ```
-To install from source, run
-```{bash}
-git clone https://github.com/dustinvtran/bayesrl.git
-cd bayesrl
-python setup.py build
-sudo python setup.py install
-```
-
-Examples can be found in the directory `examples/`. More documentation can be found in the [wiki](../../wiki).
 
 ## References
 * some paper we implemented here
