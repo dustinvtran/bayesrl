@@ -15,7 +15,7 @@ pip install https://github.com/dustinvtran/bayes-pomdp/archive/master.zip
 To install from source, run
 ```{bash}
 git clone https://github.com/dustinvtran/bayes-pomdp.git
-cd lightning
+cd bayes-pomdp
 python setup.py build
 sudo python setup.py install
 ```
