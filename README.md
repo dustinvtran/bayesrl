@@ -5,7 +5,12 @@
 * Rodrigo Gomes \<rgomes@mit.edu\>
 
 ## Description
-`BayesRL` is a Python library for reinforcement learning using Bayesian approaches. As it is currently in development, we start by implementing a system for solving (PO)MDPs using ...
+`BayesRL` is a Python library for reinforcement learning using Bayesian
+approaches. It stores both agents and environments under separate classes, where
+an agent class is a learning algorithm and environments are tasks that the agent
+must solve. We include agents and environments for solving and implementing both
+Markov decision processes (MDPs) and partially observable Markov decision
+processes (POMDPs).
 
 Examples can be found in the directory `tests/`. More documentation can be found in the [wiki](../../wiki).
 
