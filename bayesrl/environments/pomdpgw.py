@@ -62,6 +62,9 @@ class Maze(object):
 
     def true_observation(self, index_tuple):
 	it = index_tuple
+	if type(it) == int:
+	    it = self.unflatten_index(it)
+	
 	neighbors = [(it[0]+1,it[1]),
 		     (it[0]-1,it[1]),
 		     (it[0],it[1]+1),
