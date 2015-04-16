@@ -67,15 +67,25 @@ class Maze(object):
 		     (it[0],it[1]+1),
 		     (it[0],it[1]-1)]
 	neighbors = [n for n in neighbors if self.in_bounds_unflat(n)]
-	print neighbors
 	walls = [self.get_unflat(n)=='#' for n in neighbors]
 	return sum(walls)
 
-    def observation(self, index_tuple):
+    def obs_distribution(self, index_tuple):
+	if type(index_tuple) == int:
+	    index_tuple = self.unflatten_index(index_tuple)
 	other_obs_prob = (1-self.true_obs_prob)/(self.num_observations-1)
 	obs_distribution = [other_obs_prob] * self.num_observations
 	true_obs = self.true_observation(index_tuple)
-	obs_distribution[true_obs+1] = self.true_obs_prob
+	obs_distribution[true_obs] = self.true_obs_prob
+	return obs_distribution
+
+    def get_all_obs_distribution(self):
+	return [self.obs_distribution((x,y)) for x in range(self.shape[0]) for y in range(self.shape[1])]
+
+    def observation(self, index_tuple):
+	if type(index_tuple) == int:
+	    index_tuple = self.unflatten_index(index_tuple)
+	obs_distribution = self.obs_distribution(index_tuple)
 	obs = np.random.multinomial(1, obs_distribution)
 	return obs.tolist().index(1)
 
