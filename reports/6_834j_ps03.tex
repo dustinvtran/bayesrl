@@ -1,0 +1,55 @@
+%##############################################################################
+% Preamble
+%##############################################################################
+
+\documentclass{pset}
+\name{Dustin Tran, Xiaomin Wang, Rodrigo Gomes}
+\email{\{trandv,xiaominw, rgomes\}@mit.edu}
+
+\course{6.834J/16.412J, S15}
+\instructor{Professor Brian Williams}
+\assignment{Problem Set \#3}
+\duedate{April 17, 2015}
+
+\begin{document}
+
+%##############################################################################
+% Begin Document
+%##############################################################################
+
+Natural scenarios in real life occur where one must sequentially make decisions
+under uncertainty. Quite often not only are transitions to certain states
+unknown but the true state of the agent as well. This is similar to that of a
+hidden Markov model (HMM), only in that one must make a sequence of actions
+instead of a single action. The classic scenario is a robot navigating a
+discrete environment using a GPS, and it takes action that lead to different
+states with various probabilities, but because of the GPS there is also
+inaccuracy in what its current state is.
+
+One can formalize this, under Markovian assumptions, as a partially observable
+Markov decision process (POMDP). In this project we provide a robust software
+library for solving them with modular classes in order to allow for flexible
+extensions.  More specifically, we encode a variety of basic tasks and solve
+them using a variant of Thompson sampling \cite{strens2000bayesian}, which is a Bayesian approach
+following a Dirichlet-multinomial posterior over each state-action pair. The
+posterior probabilities are updated using the transition counts.
+
+We follow the directory structure specified in the problem set, with two
+exceptions:
+\begin{itemize}
+\item \texttt{documentation/} does not exist. Instead, documentation is written
+in the \texttt{README.md} inside the current working directory. Any additional
+documentation not purely necessary for the problem set submission is in the
+Github wiki.
+\item \texttt{source/} is named \texttt{bayesrl/} in order to follow Python
+convention for installing modules.
+\end{itemize}
+
+\bibliography{6_834j_ps03}
+\bibliographystyle{plain}
+
+%##############################################################################
+% End Document
+%##############################################################################
+
+\end{document}
