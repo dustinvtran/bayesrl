@@ -20,10 +20,12 @@ class Maze(object):
     """
     Simple wrapper around a NumPy 2D array to handle flattened indexing and staying in bounds.
     """
-    def __init__(self, topology):
+    def __init__(self, topology, true_obs_prob = .8):
         self.topology = parse_topology(topology)
         self.flat_topology = self.topology.ravel()
         self.shape = self.topology.shape
+	self.num_observations = 5
+	self.true_obs_prob = true_obs_prob
 
     def in_bounds_flat(self, position):
         return 0 <= position < np.product(self.shape)
@@ -56,18 +58,26 @@ class Maze(object):
     def get_inbound_index(self, index_tuple):
 	x = min(max(index_tuple[0],0),self.shape[0]-1)
 	y = min(max(index_tuple[1],0),self.shape[1]-1)
-	return [x, y]
+	return x, y
 
-    def observation(self, index_tuple):
+    def true_observation(self, index_tuple):
 	it = index_tuple
 	neighbors = [(it[0]+1,it[1]),
 		     (it[0]-1,it[1]),
 		     (it[0],it[1]+1),
 		     (it[0],it[1]-1)]
-	neighbors = set([self.get_inbound_index(n) for n in neighbors])
+	neighbors = [n for n in neighbors if self.in_bounds_unflat(n)]
 	print neighbors
 	walls = [self.get_unflat(n)=='#' for n in neighbors]
 	return sum(walls)
+
+    def observation(self, index_tuple):
+	other_obs_prob = (1-self.true_obs_prob)/(self.num_observations-1)
+	obs_distribution = [other_obs_prob] * self.num_observations
+	true_obs = self.true_observation(index_tuple)
+	obs_distribution[true_obs+1] = self.true_obs_prob
+	obs = np.random.multinomial(1, obs_distribution)
+	return obs.tolist().index(1)
 
     def __str__(self):
         return '\n'.join(''.join(row) for row in self.topology.tolist())
@@ -132,7 +142,8 @@ class GridWorld(object):
      'o': origin
     """
 
-    def __init__(self, maze, rewards={'*': 10}, terminal_markers='*', action_error_prob=0, random_state=None, directions="NSEW"):
+    def __init__(self, maze, rewards={'*': 10}, terminal_markers='*',
+    action_error_prob=0, random_state=None, directions="NSEW", pomdp=False):
 
         self.maze = Maze(maze) if not isinstance(maze, Maze) else maze
         self.rewards = rewards
@@ -145,6 +156,7 @@ class GridWorld(object):
         self.state = None
         self.reset()
         self.num_states = self.maze.shape[0] * self.maze.shape[1]
+	self.pomdp = pomdp
 
     def __repr__(self):
         return 'GridWorld(maze={maze!r}, rewards={rewards}, terminal_markers={terminal_markers}, action_error_prob={action_error_prob})'.format(**self.__dict__)
@@ -166,6 +178,7 @@ class GridWorld(object):
 
         The state is the index into the flattened maze.
         """
+	o = self.maze.observation(self.state) if self.pomdp else self.state
         return self.state
 
     def perform_action(self, action_idx):
