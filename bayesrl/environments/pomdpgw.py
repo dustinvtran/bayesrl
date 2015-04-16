@@ -62,9 +62,8 @@ class Maze(object):
 
     def true_observation(self, index_tuple):
 	it = index_tuple
-	if type(it) == int:
+	if type(it) == np.int64:
 	    it = self.unflatten_index(it)
-	
 	neighbors = [(it[0]+1,it[1]),
 		     (it[0]-1,it[1]),
 		     (it[0],it[1]+1),
@@ -192,7 +191,7 @@ class GridWorld(object):
         The state is the index into the flattened maze.
         """
 	o = self.maze.observation(self.state) if self.pomdp else self.state
-        return self.state
+        return o
 
     def perform_action(self, action_idx):
         """Perform an action (specified by index), yielding a new state and reward."""
