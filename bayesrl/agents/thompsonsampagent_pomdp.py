@@ -11,6 +11,7 @@ class ThompsonSampAgentPOMDP(ModelBasedAgent):
         self.belief = np.array([1./self.num_states for _ in range(self.num_states)])
         self.observation_model = observation_model
         self.__compute_policy()
+	print self.observation_model
 
     def reset(self):
         super(ThompsonSampAgentPOMDP, self).reset()
@@ -47,6 +48,8 @@ class ThompsonSampAgentPOMDP(ModelBasedAgent):
             self.__compute_policy()
 
         self.belief = self.__new_belief(self.last_action,observation)
+	print(self.belief)
+	input(self.last_action, observation)
         # Choose next action according to policy.
         value_table = sum(self.belief[s]*self.value_table[s] for s in range(self.num_states))
         next_action = self._argmax_breaking_ties_randomly(value_table)
