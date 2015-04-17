@@ -17,6 +17,7 @@
 % Begin Document
 %##############################################################################
 
+\section{Introduction}
 Natural scenarios in real life occur where one must sequentially make decisions
 under uncertainty. Quite often not only are transitions to certain states
 unknown but the true state of the agent as well. This is similar to that of a
@@ -27,25 +28,59 @@ states with various probabilities, but because of the GPS there is also
 inaccuracy in what its current state is.
 
 One can formalize this, under Markovian assumptions, as a partially observable
-Markov decision process (POMDP). In this project we provide a robust software
+Markov decision process (POMDP). In this project we provide a software
 library for solving them with modular classes in order to allow for flexible
 extensions.  More specifically, we encode a variety of basic tasks and solve
-them using a variant of Thompson sampling \cite{strens2000bayesian}, which is a Bayesian approach
-following a Dirichlet-multinomial posterior over each state-action pair. The
-posterior probabilities are updated using the transition counts.
+them using a combination of value iteration and a variant of Thompson sampling 
+\cite{strens2000bayesian}, which is a Bayesian approach
+following a Dirichlet-multinomial posterior over each state-action pair. 
+
+\section{Technical Background}
+
+\subsection{POMDP}
+POMDP is a generalization of a Markov decision process (MDP). In an MDP, for each possible state of
+the process, a decision has to be made regarding which action should be executed in that state. The
+chosen action affects both the transition probabilities and the costs (or rewards) incurred. The
+goal is to choose an optimal action in every state to increase some predefined measure of 
+performance. In a POMDP model, the agent cannot fully observe the system states. 
+Instead, it must maintain a probability distribution over the set of possible states, 
+based on a set of observations and observation probabilities, and the underlying MDP.  
+
+More formally, 
+
+
+\subsection{Value Iteration}
+
+\subsection{Thompson Sampling}
+
+The posterior probabilities are updated using the transition counts.
 
 Thompson sampling gives us two capabilities: using dynamic programming, we can
 find the optimal action to take at a certain state, and it allows us to learn
 the transition model, and reward model for a certain environment. We tested this
 with Markov Decision Processes (MDPs), and extended it to be used with POMDPs.
 
+\section{Implementation}
 For use with POMDPs, we assume that the agent is given an observation model of the
 environment it is acting in, in the form of a conditional probability distribution
-$P(observation \mid state)$. It, however, is unaware of its transition model, and
+$P(observation \mid state)$. Astrom has shown that a properly updated probability 
+distribution over the state space S is sufficient to summarize all the observable 
+history of a POMDP agent without loss of optimality \cite{astrom}. The agent, however, is unaware of its transition model, and
 reward model, and must learn those. Using these models, the agent keeps, and
 updates a distribution over the states it can be in, and chooses the action with
 the highest expected reward.
 
+We ran this code in a sample environment we call gridworld: the agent has negative
+reward for every state/action, except when it reaches a goal state, where is has
+a high positive reward.
+Gridworld represents a maze where the agent can be in discrete locations. Certain
+locations are impossible for the agent, representing ``walls''. Every action can
+move the agent between two adjacent grid locations, or fail, and keep the agent in
+the same location with some probability.
+
+\subsection{Agent Environment Paradigm}
+
+\subsection{Organization of Code}
 We follow the directory structure specified in the problem set, with two
 exceptions:
 \begin{itemize}
@@ -57,14 +92,15 @@ Github wiki.
 convention for installing modules.
 \end{itemize}
 
-We ran this code in a sample environment we call gridworld: the agent has negative
-reward for every state/action, except when it reaches a goal state, where is has
-a high positive reward.
-Gridworld represents a maze where the agent can be in discrete locations. Certain
-locations are impossible for the agent, representing ``walls''. Every action can
-move the agent between two adjacent grid locations, or fail, and keep the agent in
-the same location with some probability.
+\section{Analysis}
 
+\subsection{Runtime}
+
+\subsection{Memory}
+
+\subsection{Limitations}
+
+\section{Benchmark Results}
 The implementation of Thompson Sampling for MDPs ran very successfully: as time
 progressed, the agent was able to get to the goal much faster, and get a high
 reward. It did not work, however, for POMDPs. As time progressed, the agent seemed
@@ -87,6 +123,7 @@ more deliberate manner, to maximize reward. The POMDP agent, however, seems to
 be in a state where its reward just gets increasingly negative. It is unclear
 whether it never leaves the exploration phase, or if it simply learns a completely
 wrong transition model, and thus computes a very wrong policy.
+
 
 
 \bibliography{6_834j_ps03}
