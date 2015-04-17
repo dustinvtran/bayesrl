@@ -46,8 +46,29 @@ performance. In a POMDP model, the agent cannot fully observe the system states.
 Instead, it must maintain a probability distribution over the set of possible states, 
 based on a set of observations and observation probabilities, and the underlying MDP.  
 
-More formally, 
+More formally, a POMDP is represented by the following variables: 
 
+\begin{itemize}
+\item $S$ is a set of states
+\item $A$ is a set of actions
+\item $T$ is a set of transition probabilities between states. If the agent is currently in state $s
+\in S$, and it takes action $a \in A$. The agent will transition to some new state $s'$ according to 
+$T(s' \mid s,a)$
+\item $R: S \times A \rightarrow \mathbb{R}$ is a reward function that assigns a numeric reward (or
+cost if the value is negative) for each state and action. 
+\item $\Omega$ is a set of observations
+\item $O$ is a set of conditional observation probabilites. If the agent is now in state $s$, 
+it receives an observation $o$ according to $O(o \mid s)$
+\item $\gamma \in [0,1]$ is a discount factor that determines how much rewards should be discounted over time
+\end{itemize}
+ 
+We ran this code in a sample environment we call gridworld: the agent has negative
+reward for every state/action, except when it reaches a goal state, where is has
+a high positive reward.
+Gridworld represents a maze where the agent can be in discrete locations. Certain
+locations are impossible for the agent, representing ``walls''. Every action can
+move the agent between two adjacent grid locations, or fail, and keep the agent in
+the same location with some probability.
 
 \subsection{Value Iteration}
 
@@ -70,13 +91,6 @@ reward model, and must learn those. Using these models, the agent keeps, and
 updates a distribution over the states it can be in, and chooses the action with
 the highest expected reward.
 
-We ran this code in a sample environment we call gridworld: the agent has negative
-reward for every state/action, except when it reaches a goal state, where is has
-a high positive reward.
-Gridworld represents a maze where the agent can be in discrete locations. Certain
-locations are impossible for the agent, representing ``walls''. Every action can
-move the agent between two adjacent grid locations, or fail, and keep the agent in
-the same location with some probability.
 
 \subsection{Agent Environment Paradigm}
 
