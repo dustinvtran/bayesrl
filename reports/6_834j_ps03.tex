@@ -133,27 +133,18 @@ belief state. $a = \pi(b)$. The expected reward for policy $\pi$ starting freom
 belief $b_0$ is defined as
 \[ V^{\pi}(b_{0})=\sum\limits_{t=0}^\infty \gamma^{t}r(b_t,a_t) \]
 where $r(b_t, a_t) = \sum\limits_{s \in S} b_t(s)R(s,a_t)$.
-
 The optimal policy should maximize the long term reward
 \[ \pi = \underset{\pi}{\text{argmax}} V^{\pi}(b_0) \]
 At each time step, we update the belief states based on the observation, and
 then update the values based on the updated belief states. The action that gives
 the largest expected reward over the belief states is selected for the next time
-step. The updating algorithm is a form of Thompson Sampling, which will be
-introduced in the next section. The values gradually improve until convergence.
+step. The values gradually improve until convergence.
 By improving the values, the policy is implicitly improved.
+
 \section{Implementation}
-For use with POMDPs, we assume that the agent is given an observation model of the
-environment it is acting in, in the form of a conditional probability distribution
-$P(observation \mid state)$. Astr\"{o}m has shown that a properly updated probability
-distribution over the state space S is sufficient to summarize all the observable
-history of a POMDP agent without loss of optimality \cite{astrom1965optimal}. The agent, however, is unaware of its transition model, and
-reward model, and must learn those. Using these models, the agent keeps and
-updates a distribution over the states it can be in, and chooses the action with
-the highest expected reward.
 
 \subsection{Agent Environment Paradigm}
-We follow the paradigm set forth in Sutton and Barto (Figure 3.1,
+For MDP, we follow the paradigm set forth in Sutton and Barto (Figure 3.1,
 \cite{sutton1998reinforcement}).
 \begin{figure}[ht]
 \begin{center}
@@ -168,9 +159,10 @@ We implement a base class \texttt{Agent} which is a collection of objects and fu
 The model-based algorithms R-MAX and Thompson sampling inherit from \texttt{ModelBasedAgent}, which is a class that itself inherits from \texttt{Agent}; \texttt{ModelBasedAgent} adds subroutines specific to model-based approaches such as value iteration.
 
 In order to reduce the most redundant code, we also could have used an
-additional class that inherits from \texttt{Agent} for TD method agents; this
+additional class that inherits from \texttt{Agent} for temporal difference method agents; this
 would be used by both \texttt{SARSAAgent} and \texttt{QLearningAgent}, as they
-differ only in their \texttt{value\_table} assignment. However, the efficiency gain in such an abstraction is not worth the loss of readability in my opinion.
+differ only in their \texttt{value\_table} assignment. However, the efficiency gain in such an
+abstraction is not worth the loss of readability in our opinion.
 
 \subsubsection{Environment}
 An \texttt{Environment} object is initialized at some state, with an arbitrarily
@@ -179,6 +171,15 @@ object under the subroutine \texttt{perform\_action()}, and the output is a new 
 
 \subsubsection{Trial and Plot}
 As for trials, we implement a class \texttt{Trial} which contains all information for running multiple trials, i.e., independent collections of episodes to learn and act upon. We also add a \texttt{Plot} class which is a wrapper containing all \texttt{Trial} objects; this is convenient for generating plots on collections of trials coming from possibly many different agents.
+
+\subsection{POMDP}
+For POMDP, we assume that the agent is given an observation model of the
+environment it is acting in, in the form of a conditional probability distribution
+$P(observation \mid state)$. Astr\"{o}m has shown that a properly updated probability
+distribution over the state space $S$ is sufficient to summarize all the observable
+history of a POMDP agent without loss of optimality \cite{astrom1965optimal}. 
+Thus we add a step of updating the belief state to the MDP paradigm. And the belief state is used to
+update the transition model instead of the underlying state.
 
 \subsection{Organization of Code}
 We follow the directory structure specified in the problem set, with two
