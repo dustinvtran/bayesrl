@@ -20,12 +20,15 @@ class Maze(object):
     """
     Simple wrapper around a NumPy 2D array to handle flattened indexing and staying in bounds.
     """
-    def __init__(self, topology, true_obs_prob = .8):
+    def __init__(self, topology, true_obs_prob=.8, easy_obs_model=True):
         self.topology = parse_topology(topology)
         self.flat_topology = self.topology.ravel()
         self.shape = self.topology.shape
-	self.num_observations = 5
 	self.true_obs_prob = true_obs_prob
+	self.easy_obs_model = easy_obs_model
+	#If the observation model is easy, the agent can observe which directions have walls
+	#If the observation model is not easy, the agent only observes how many of its four neighbors are walls. 
+	self.num_observations = 16 if easy_obs_model else 5
 
     def in_bounds_flat(self, position):
         return 0 <= position < np.product(self.shape)
@@ -69,8 +72,12 @@ class Maze(object):
 		     (it[0],it[1]+1),
 		     (it[0],it[1]-1)]
 	neighbors = [n for n in neighbors if self.in_bounds_unflat(n)]
-	walls = [self.get_unflat(n)=='#' for n in neighbors]
-	return sum(walls)
+	if_wall = [self.get_unflat(n)=='#' for n in neighbors]
+	if self.easy_obs_model:
+	    obs = sum(if_wall)
+	else:
+	    obs = sum(np.array([8,4,2,1])*if_wall)    
+	return obs
 
     def obs_distribution(self, index_tuple):
 	if type(index_tuple) == int:
