@@ -34,6 +34,13 @@ them using a variant of Thompson sampling \cite{strens2000bayesian}, which is a 
 following a Dirichlet-multinomial posterior over each state-action pair. The
 posterior probabilities are updated using the transition counts.
 
+For this project, we assume that the agent is given an observation model of the
+environment it is acting in, in the form of a conditional probability distribution
+$P(observation \mid state)$. It, however, is unaware of its transition model, and
+reward model, and must learn those in a similar way to Thompson Sampling.
+Using these models, the agent keeps, and updates a distribution over the states
+it can be in, and chooses the action with the highest expected reward.
+
 We follow the directory structure specified in the problem set, with two
 exceptions:
 \begin{itemize}
