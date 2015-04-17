@@ -61,7 +61,7 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
             for a in xrange(self.num_actions):
                 self.transition_probs[s,a] = np.random.dirichlet(self.transition_observations[s,a] +\
                                                             self.dirichlet_param, size=1)
-        self._value_iteration(transition_probs)
+        self._value_iteration(self.transition_probs)
 
     def __update_belief(self,action,observation):
         self.__transition(action)

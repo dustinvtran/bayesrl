@@ -25,7 +25,7 @@ num_trials = 1
 agent = ThompsonSampAgentPOMDP(observation_model=task.maze.get_all_obs_distribution(),
     num_states=task.num_states, num_actions=task.num_actions,
     discount_factor=0.95, T=50, dirichlet_param=1, reward_param=50)
-trial_thompson1 = Trial(agent, task, MIN_EPISODES=10)
+trial_thompson1 = Trial(agent, task, MIN_EPISODES=100)
 trial_thompson1.run_multiple(num_trials)
 
 # # Dirichlet params = 1, Reward params = 10

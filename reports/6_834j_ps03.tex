@@ -62,13 +62,24 @@ it receives an observation $o$ according to $O(o \mid s)$
 \item $\gamma \in [0,1]$ is a discount factor that determines how much rewards should be discounted over time
 \end{itemize}
  
-We ran this code in a sample environment we call gridworld: the agent has negative
-reward for every state/action, except when it reaches a goal state, where is has
-a high positive reward.
-Gridworld represents a maze where the agent can be in discrete locations. Certain
+We will use our testing environment, gridworld, as an example. 
+Gridworld represents a 2D maze where the agent can be in discrete locations. Certain
 locations are impossible for the agent, representing ``walls''. Every action can
 move the agent between two adjacent grid locations, or fail, and keep the agent in
-the same location with some probability.
+the same location with some probability. The objective is to reach the goal location. 
+For the gridworld, $S$ consists of all the possible (row, column) location tuples inside the maze. 
+$A$ contains the four possible actions the agent can take: up, down, left, right. 
+$T$ describes a transition model that allows the agent to move without hitting the wall. 
+We define $R$ as: the agent has negative reward for every state/action, except when it reaches a goal state, 
+where it has a high positive reward.
+We implemented two observation models. The easier model gives the agent more information about the
+environment. The agent knows which of its four neighbors are walls, giving rise to 16 total
+observations. In the other observation model, the agent can only observe how many of its four
+neighbors are walls, giving rise to 5 possible observations. $O$ is such that 
+$Pr(true observation \mid state)=true observation prob$, where $true observation prob$ can be adjusted.
+And $Pr(other observation \mid state)=\frac{1-true observation prob}{total num of observations-1}$
+Since we cannot work with the underlying states directly in POMDP, we also need $B$ which is the set
+of belief states, or the probabilities the agent is at all possible states. 
 
 \subsection{Value Iteration}
 
@@ -78,8 +89,9 @@ The posterior probabilities are updated using the transition counts.
 
 Thompson sampling gives us two capabilities: using dynamic programming, we can
 find the optimal action to take at a certain state, and it allows us to learn
-the transition model, and reward model for a certain environment. We tested this
-with Markov Decision Processes (MDPs), and extended it to be used with POMDPs.
+the transition model, and reward model for a certain environment. 
+
+We tested this with MDP, and extended it to be used with POMDPs.
 
 \section{Implementation}
 For use with POMDPs, we assume that the agent is given an observation model of the
