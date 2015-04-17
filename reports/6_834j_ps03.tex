@@ -34,12 +34,17 @@ them using a variant of Thompson sampling \cite{strens2000bayesian}, which is a 
 following a Dirichlet-multinomial posterior over each state-action pair. The
 posterior probabilities are updated using the transition counts.
 
-For this project, we assume that the agent is given an observation model of the
+Thompson sampling gives us two capabilities: using dynamic programming, we can
+find the optimal action to take at a certain state, and it allows us to learn
+the transition model, and reward model for a certain environment. We tested this
+with Markov Decision Processes (MDPs), and extended it to be used with POMDPs.
+
+For use with POMDPs, we assume that the agent is given an observation model of the
 environment it is acting in, in the form of a conditional probability distribution
 $P(observation \mid state)$. It, however, is unaware of its transition model, and
-reward model, and must learn those in a similar way to Thompson Sampling.
-Using these models, the agent keeps, and updates a distribution over the states
-it can be in, and chooses the action with the highest expected reward.
+reward model, and must learn those. Using these models, the agent keeps, and
+updates a distribution over the states it can be in, and chooses the action with
+the highest expected reward.
 
 We follow the directory structure specified in the problem set, with two
 exceptions:
@@ -51,6 +56,35 @@ Github wiki.
 \item \texttt{source/} is named \texttt{bayesrl/} in order to follow Python
 convention for installing modules.
 \end{itemize}
+
+We ran this code in a sample environment we call gridworld: the agent has negative
+reward for every state/action, except when it reaches a goal state, where is has
+a high positive reward.
+Gridworld represents a maze where the agent can be in discrete locations. Certain
+locations are impossible for the agent, representing ``walls''. Every action can
+move the agent between two adjacent grid locations, or fail, and keep the agent in
+the same location with some probability.
+
+The implementation of Thompson Sampling for MDPs ran very successfully: as time
+progressed, the agent was able to get to the goal much faster, and get a high
+reward. It did not work, however, for POMDPs. As time progressed, the agent seemed
+to take about the same amount of time to reach the goal on every execution, not
+improving in performance. We hypothesize that the reason is due to a lack of
+a good prior on the transition model: thompson sampling relies a lot on being
+able to count the number of transitions between states, given an action. This
+is very hard in a POMDP with a weak prior on its transition model, as it may have
+a completely wrong idea of where it ends up at each step. The observation model
+is supposed to improve its accuracy, but it was not sufficient in this case.
+
+To have an idea of how differently successful the same approach was on MDPs vs
+POMDPs, we show you our results:
+
+
+These graphs show the cumulative reward that the agent got as time progressed.
+In the MDP case, the reward started low, and kept getting lower, as the agent
+explored. It, however, started getting higher as the agent started acting in a
+more deliberate manner, to maximize reward.
+
 
 \bibliography{6_834j_ps03}
 \bibliographystyle{plain}
