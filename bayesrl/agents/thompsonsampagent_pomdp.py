@@ -43,7 +43,7 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
         if self.policy_step == self.T:
             self.__compute_policy()
 
-        self.belief = self.__update_belief(self.last_action,observation)
+        self.__update_belief(self.last_action,observation)
         # Choose next action according to policy.
         value_table = sum(self.belief[s]*self.value_table[s] for s in range(self.num_states))
         next_action = self._argmax_breaking_ties_randomly(value_table)
