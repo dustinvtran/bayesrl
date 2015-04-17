@@ -86,7 +86,8 @@ We solve POMDP with value iteration. Value $V$, is the expected total reward
 given a policy $\pi$, where a policy decides which action to take given the belief state. $a =
 \pi(b)$. The expected reward for policy $\pi$ starting freom belief $b_0$ is defined as 
 \[ V^{\pi}(b_{0})=\sum\limits_{t=0}^\infty \gamma^{t}r(b_t,a_t) \]
-where $r(b_t, a_t) = \sum\limits_{s \in S} b_t(s)R(s,a_t)$
+where $r(b_t, a_t) = \sum\limits_{s \in S} b_t(s)R(s,a_t)$.
+
 The optimal policy should maximize the long term reward
 \[ \pi = \underset{\pi}{\text{argmax}} V^{\pi}(b_0) \]
 At each time step, we update the belief states based on the observation, and then update the values based on
@@ -152,6 +153,13 @@ is supposed to improve its accuracy, but it was not sufficient in this case.
 To have an idea of how differently successful the same approach was on MDPs vs
 POMDPs, we show you our results:
 
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{pomdp.png}
+\caption{\label{fig:pomdp}Cumulative Reward for POMDP}
+\includegraphics[width=0.5\textwidth]{pomdp.png}
+\caption{\label{fig:mdp}Cumulative Reward for MDP}
+\end{figure}
 
 These graphs show the cumulative reward that the agent got as time progressed.
 In the MDP case, the reward started low, and kept getting lower, as the agent
