@@ -21,4 +21,4 @@ pip install -e "git+https://github.com/dustinvtran/bayesrl.git#egg=bayesrl"
 ```
 
 ## References
-* some paper we implemented here
+* Malcolm Strens. A bayesian framework for reinforcement learning. In _Proceedings of the 17th International Conference on Machine Learning (ICML)_, 2000.
