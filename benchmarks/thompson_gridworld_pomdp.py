@@ -5,7 +5,7 @@ of the prior misspecification.
 """
 
 from bayesrl.environments import pomdpgw
-from bayesrl.agents.thompsonsampagent_pomdp2 import ThompsonSampAgentPOMDP
+from bayesrl.agents.thompsonsampagent_pomdp import ThompsonSampAgentPOMDP
 from bayesrl.trial import Trial
 from bayesrl.plot import Plot
 
