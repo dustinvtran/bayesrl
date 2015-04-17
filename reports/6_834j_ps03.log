@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  17 APR 2015 16:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (TeX Live 2014) (preloaded format=pdflatex 2014.5.25)  17 APR 2015 16:37
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1011,22 +1011,19 @@ Overfull \hbox (9.21848pt too wide) in paragraph at lines 14--14
 ABD: EveryShipout initializing macros
 LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <14.4> not available
 (Font)              Font shape `OT1/ppl/b/n' tried instead on input line 20.
-LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <10> not available
-(Font)              Font shape `OT1/ppl/b/n' tried instead on input line 35.
-
-
-LaTeX Warning: Citation `strens2000bayesian' on page 1 undefined on input line 
-35.
-
 LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <12> not available
 (Font)              Font shape `OT1/ppl/b/n' tried instead on input line 40.
 LaTeX Font Info:    Try loading font information for U+fplmbb on input line 57.
+
 
 (/usr/local/texlive/2014/texmf-dist/tex/latex/psnfss/ufplmbb.fd
 File: ufplmbb.fd 2003/10/30 Fontinst v1.914 font definitions for U/fplmbb.
 ) [1
 
 {/usr/local/texlive/2014/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Font shape `OT1/ppl/bx/n' in size <10> not available
+(Font)              Font shape `OT1/ppl/b/n' tried instead on input line 113.
+
 
 LaTeX Warning: Citation `astrom' on page 2 undefined on input line 113.
 
@@ -1039,25 +1036,22 @@ File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 <pomdp.png, id=20, 578.16pt x 433.62pt>
 File: pomdp.png Graphic file (type png)
  <use pomdp.png>
-Package pdftex.def Info: pomdp.png used on input line 158.
+Package pdftex.def Info: pomdp.png used on input line 159.
 (pdftex.def)             Requested size: 234.8775pt x 176.15768pt.
 File: pomdp.png Graphic file (type png)
  <use pomdp.png>
-Package pdftex.def Info: pomdp.png used on input line 160.
+Package pdftex.def Info: pomdp.png used on input line 161.
 (pdftex.def)             Requested size: 234.8775pt x 176.15768pt.
 
 (./6_834j_ps03.bbl) [3] [4 <./pomdp.png>] (./6_834j_ps03.aux)
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
  23042 strings out of 493117
  480231 string characters out of 6135433
- 538611 words of memory out of 5000000
+ 538630 words of memory out of 5000000
  26059 multiletter control sequences out of 15000+600000
  23317 words of font info for 71 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -1072,7 +1066,7 @@ f-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2014/texmf-dist/f
 onts/type1/urw/palatino/uplb8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/ty
 pe1/urw/palatino/uplr8a.pfb></usr/local/texlive/2014/texmf-dist/fonts/type1/urw
 /palatino/uplri8a.pfb>
-Output written on 6_834j_ps03.pdf (4 pages, 135366 bytes).
+Output written on 6_834j_ps03.pdf (4 pages, 135481 bytes).
 PDF statistics:
  60 PDF objects out of 1000 (max. 8388607)
  42 compressed objects within 1 object stream

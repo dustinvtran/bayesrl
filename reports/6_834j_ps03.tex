@@ -135,8 +135,13 @@ convention for installing modules.
 \subsection{Runtime}
 
 \subsection{Memory}
+We need to store a few arrays. The transition probabilities table is of dimension $\mid S \mid ^2
+\mid A \mid$. The value table is of dimension $\mid S \mid \mid A \mid$. The transition
+observation table is of dimension $\mid S \mid ^2 \mid A \mid$. Thus the space requirement for the
+algorithm is $O(\mid S \mid ^2 \mid A \mid)$ 
 
 \subsection{Limitations}
+If the number of states is large, the algorithm quickly becomes intractable.  
 
 \section{Benchmark Results}
 The implementation of Thompson Sampling for MDPs ran very successfully: as time
