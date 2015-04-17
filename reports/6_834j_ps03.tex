@@ -62,7 +62,7 @@ it receives an observation $o$ according to $O(o \mid s)$
 \item $\gamma \in [0,1]$ is a discount factor that determines how much rewards should be discounted over time
 \end{itemize}
  
-We will use our testing environment, gridworld, as an example. 
+We use our testing environment, gridworld, as an example. 
 Gridworld represents a 2D maze where the agent can be in discrete locations. Certain
 locations are impossible for the agent, representing ``walls''. Every action can
 move the agent between two adjacent grid locations, or fail, and keep the agent in
@@ -76,22 +76,33 @@ We implemented two observation models. The easier model gives the agent more inf
 environment. The agent knows which of its four neighbors are walls, giving rise to 16 total
 observations. In the other observation model, the agent can only observe how many of its four
 neighbors are walls, giving rise to 5 possible observations. $O$ is such that 
-$Pr(true observation \mid state)=true observation prob$, where $true observation prob$ can be adjusted.
-And $Pr(other observation \mid state)=\frac{1-true observation prob}{total num of observations-1}$
+$Pr(true\_observation\mid state)=true\_observation\_prob$, where $true\_observation\_prob$ can be adjusted.
+And $Pr(other\_observation\mid state)=\frac{1-true\_observation\_prob}{total\_num\_of\_observations-1}$
 Since we cannot work with the underlying states directly in POMDP, we also need $B$ which is the set
 of belief states, or the probabilities the agent is at all possible states. 
 
 \subsection{Value Iteration}
+We solve POMDP with value iteration. Value $V$, is the expected total reward
+given a policy $\pi$, where a policy decides which action to take given the belief state. $a =
+\pi(b)$. The expected reward for policy $\pi$ starting freom belief $b_0$ is defined as 
+\[ V^{\pi}(b_{0})=\sum\limits_{t=0}^\infty \gamma^{t}r(b_t,a_t) \]
+where $r(b_t, a_t) = \sum\limits_{s \in S} b_t(s)R(s,a_t)$
+The optimal policy should maximize the long term reward
+\[ \pi = \underset{\pi}{\text{argmax}} V^{\pi}(b_0) \]
+At each time step, we update the belief states based on the observation, and then update the values based on
+the updated belief states. The action that gives the largest expected reward over the belief states
+is selected for the next time step. The updating algorithm is a form of Thompson Sampling, which
+will be introduced in the next section. The values gradually improve until convergence. By improving the values,
+the policy is implicitly improved. 
 
 \subsection{Thompson Sampling}
+Thompson Sampling is used to learn the transition model and to select the best action.
+The transition model, $T$ is initialized uniformly. After every some number of  time steps (samples), 
+the transition probabilities are recalculated using Bayesian methods. In MDP, since the agent can observe the states
+directly, the posterior transition probabilities are updated using the transition counts.
+In POMDP, the posterior probabilities are updated using belief state transition probabilities. 
+Every few steps, the value table is also updated.
 
-The posterior probabilities are updated using the transition counts.
-
-Thompson sampling gives us two capabilities: using dynamic programming, we can
-find the optimal action to take at a certain state, and it allows us to learn
-the transition model, and reward model for a certain environment. 
-
-We tested this with MDP, and extended it to be used with POMDPs.
 
 \section{Implementation}
 For use with POMDPs, we assume that the agent is given an observation model of the
