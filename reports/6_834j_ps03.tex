@@ -33,7 +33,13 @@ library for solving them with modular classes in order to allow for flexible
 extensions.  More specifically, we encode a variety of basic tasks and solve
 them using a combination of value iteration and a variant of Thompson sampling 
 \cite{strens2000bayesian}, which is a Bayesian approach
-following a Dirichlet-multinomial posterior over each state-action pair. 
+following a Dirichlet-multinomial posterior over each state-action pair.
+
+The repository can be found at https://github.com/dustinvtran/bayesrl. 
+To install from pip, run 
+\begin{lstlisting}
+pip install -e "git+https://github.com/dustinvtran/bayesrl.git#egg=bayesrl"
+\end{lstlisting}
 
 \section{Technical Background}
 
