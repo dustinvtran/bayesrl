@@ -83,7 +83,10 @@ POMDPs, we show you our results:
 These graphs show the cumulative reward that the agent got as time progressed.
 In the MDP case, the reward started low, and kept getting lower, as the agent
 explored. It, however, started getting higher as the agent started acting in a
-more deliberate manner, to maximize reward.
+more deliberate manner, to maximize reward. The POMDP agent, however, seems to
+be in a state where its reward just gets increasingly negative. It is unclear
+whether it never leaves the exploration phase, or if it simply learns a completely
+wrong transition model, and thus computes a very wrong policy.
 
 
 \bibliography{6_834j_ps03}
