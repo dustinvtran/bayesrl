@@ -21,7 +21,7 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
             # Return random action since there is no information.
             next_action = np.random.randint(self.num_actions)
             self.last_action = next_action
-            self.__observe(observation, self.belief)
+            self.__observe(observation)
             return self.last_action
 
         # Handle completion of episode.
