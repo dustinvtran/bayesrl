@@ -48,24 +48,27 @@ pip install -e "git+https://github.com/dustinvtran/bayesrl.git#egg=bayesrl"
 \section{Technical Background}
 
 \subsection{POMDP}
-POMDP is a generalization of a Markov decision process (MDP). In an MDP, for
-each possible state of the process, a decision has to be made regarding which
-action should be executed in that state. The chosen action affects both the
-transition probabilities and the costs (or rewards) incurred. The goal is to
-choose an optimal action in every state to increase some predefined measure of
-performance. In a POMDP model, the agent cannot fully observe the system states.
-Instead, it must maintain a probability distribution over the set of possible
-states, based on a set of observations and observation probabilities, and the
-underlying MDP.
+POMDP is a generalization of a Markov decision process (MDP). In a MDP, for each
+possible state of the process, a decision has to be made regarding which action
+should be executed in that state. The chosen action and given state affects the
+costs (or rewards) incurred. The goal is to learn the optimal \emph{policy},
+which is a
+choice of actions that in expectation leads to the optima reward in a
+pre-defined number of steps (in the case of finite horizon; or in infinite time). In a
+POMDP model, the agent does not fully observe the underlying states but a
+(non-sufficient) statistic of it. Thus POMDPs also
+maintain a probability distribution over the set of possible states, based on a
+set of observations and observation probabilities, and the underlying MDP.
 
-More formally, a POMDP is represented by the following variables:
+More formally, a POMDP is a collection $(S,A,T,R,\Omega,O,\gamma)$, where
 
 \begin{itemize}
 \item $S$ is a set of states
 \item $A$ is a set of actions
 \item $T$ is a set of transition probabilities between states. If the agent is currently in state $s
-\in S$, and it takes action $a \in A$. The agent will transition to some new state $s'$ according to
-$T(s' \mid s,a)$
+\in S$, and it takes action $a \in A$, the agent will transition to a new state
+$s'$ with probability
+$T(s' \mid s,a)$.
 \item $R: S \times A \rightarrow \mathbb{R}$ is a reward function that assigns a numeric reward (or
 cost if the value is negative) for each state and action.
 \item $\Omega$ is a set of observations
@@ -74,31 +77,57 @@ it receives an observation $o$ according to $O(o \mid s)$
 \item $\gamma \in [0,1]$ is a discount factor that determines how much rewards should be discounted over time
 \end{itemize}
 
-We use our testing environment, gridworld, as an example.
-Gridworld represents a 2D maze where the agent can be in discrete locations.
-Certain locations are impossible for the agent, representing ``walls''. Every
-action can move the agent between two adjacent grid locations, or fail, and keep
-the agent in the same location with some probability. The objective is to reach
-the goal location.  For the gridworld, $S$ consists of all the possible (row,
-column) location tuples inside the maze.
-$A$ contains the four possible actions the agent can take: up, down, left,
-right.  $T$ describes a transition model that allows the agent to move without
-hitting the wall.  We define $R$ as: the agent has negative reward for every
-state/action, except when it reaches a goal state, where it has a high positive
-reward.  We implemented two observation models. The easier model gives the agent
-more information about the environment. The agent knows which of its four
-neighbors are walls, giving rise to 16 total observations. In the other
-observation model, the agent can only observe how many of its four neighbors are
-walls, giving rise to 5 possible observations. $O$ is such that
-$Pr(true\_observation\mid state)=true\_observation\_prob$, where
-$true\_observation\_prob$ can be adjusted.  And $Pr(other\_observation\mid
-state)=\frac{1-true\_observation\_prob}{total\_num\_of\_observations-1}$ Since
+We use our testing environment \texttt{GridWorld} as an example.
+\texttt{GridWorld} represents a 2D maze where the agent can be in discrete locations.
+Certain locations are impossible for the agent to move to, representing ``walls''. Every
+action can move the agent between two adjacent grid locations, or fail, and
+cause
+the agent to take a uniformly random action instead according to some
+user-specified probability. The goal is to reach
+the goal location in least amount of time, as each move is -1 reward, hitting a
+wall is -1 reward, and reaching the end positions incurs a reward of +50.
+
+For \texttt{GridWorld}, $S$ consists of all the possible (row, column) location
+tuples inside the maze.  $A$ contains the four possible actions the agent can
+take: up, down, left, right.  $T$ describes a transition model that allows the
+agent to move without hitting the wall.  We define $R$ as the above. To make
+this a partially observable problem, we implemented two observation models.
+\begin{itemize}
+\item
+The
+easier model gives the agent more information about the environment. The agent
+knows which of its four neighbors are walls, giving rise to 16 total
+observations.
+\item
+In the second observation model, the agent can only observe how
+many of its four neighbors are walls, giving rise to 5 possible observations.
+$O$ is such that $Pr(true\_observation\mid state)=true\_observation\_prob$,
+where $true\_observation\_prob$ can be adjusted, and
+\begin{equation}
+Pr(other\_observation\mid
+state)=\frac{1-true\_observation\_prob}{total\_num\_of\_observations-1}
+\end{equation}
+\end{itemize}
+Since
 we cannot work with the underlying states directly in POMDP, we also need $B$
 which is the set of belief states, or the probabilities the agent is at all
 possible states.
 
+\subsection{Thompson Sampling}
+Thompson Sampling is used to learn the transition distribution $T$, where one
+first specifies a prior according to one's knowledge about the transitions
+before trying any actions. After a constant set of time steps, the transition
+probabilities are then recalculated using a posterior update following a
+Dirichlet-multinomial distribution. In MDP, since the agent observes the states
+directly, the posterior transition probabilities are updated directly using the
+transition counts. In POMDP, the posterior probabilities are iteratively updated
+following an update on belief state transition probabilities.
+
+Note that we've also implemented a variety of other standard MDP solvers for
+benchmarking: Q-Learning, SARSA, and R-MAX.
+
 \subsection{Value Iteration}
-We solve POMDP with value iteration. Value $V$, is the expected total reward
+Given estimated transition probabilities, we then solve for the underlying policy with value iteration. Value $V$, is the expected total reward
 given a policy $\pi$, where a policy decides which action to take given the
 belief state. $a = \pi(b)$. The expected reward for policy $\pi$ starting freom
 belief $b_0$ is defined as
@@ -113,23 +142,13 @@ the largest expected reward over the belief states is selected for the next time
 step. The updating algorithm is a form of Thompson Sampling, which will be
 introduced in the next section. The values gradually improve until convergence.
 By improving the values, the policy is implicitly improved.
-
-\subsection{Thompson Sampling}
-Thompson Sampling is used to learn the transition model and to select the best
-action.  The transition model, $T$ is initialized uniformly. After every some
-number of  time steps (samples), the transition probabilities are recalculated
-using Bayesian methods. In MDP, since the agent can observe the states directly,
-the posterior transition probabilities are updated using the transition counts.
-In POMDP, the posterior probabilities are updated using belief state transition
-probabilities.  Every few steps, the value table is also updated.
-
 \section{Implementation}
 For use with POMDPs, we assume that the agent is given an observation model of the
 environment it is acting in, in the form of a conditional probability distribution
-$P(observation \mid state)$. Astrom has shown that a properly updated probability
+$P(observation \mid state)$. Astr\"{o}m has shown that a properly updated probability
 distribution over the state space S is sufficient to summarize all the observable
 history of a POMDP agent without loss of optimality \cite{astrom1965optimal}. The agent, however, is unaware of its transition model, and
-reward model, and must learn those. Using these models, the agent keeps, and
+reward model, and must learn those. Using these models, the agent keeps and
 updates a distribution over the states it can be in, and chooses the action with
 the highest expected reward.
 
@@ -176,38 +195,63 @@ convention for installing modules.
 \section{Analysis}
 
 \subsection{Runtime}
+All solvers we implement are guaranteed to converge in polynomial time for MDPs,
+although unfortunately we have not seen stricter theoretical results on the
+upper bounds than this. This certainly makes sense as it is true for all
+environments regardless of the pathological scenario. However, it would
+certainly be interesting to examine bounds under stricter assumptions where we
+fix the environment and perhaps certain parameter settings to simplify the
+analysis.
 
 \subsection{Memory}
-We need to store a few arrays. The transition probabilities table is of
-dimension $\mid S \mid ^2 \mid A \mid$. The value table is of dimension $\mid S
-\mid \mid A \mid$. The transition observation table is of dimension $\mid S \mid
-^2 \mid A \mid$. Thus the space requirement for the algorithm is $O(\mid S \mid
-^2 \mid A \mid)$
+We to store several arrays for the computation. The transition probabilities
+table is of dimension $\mid S \mid ^2 \mid A \mid$. The value table is of
+dimension $\mid S \mid \mid A \mid$. The transition observation table is of
+dimension $\mid S \mid ^2 \mid A \mid$. Thus the space requirement for the
+algorithm is $O(\mid S \mid ^2 \mid A \mid)$.
 
 \subsection{Limitations}
-If the number of states is large, the algorithm quickly becomes intractable.
+If the number of states is large, the algorithm quickly becomes intractable. We
+are quite interested in examining function approximations, which allow one to
+essentially apply a supervised learning algorithm to predict the optimal action
+given state characteristics, rather than to hardcode them manually. Note
+however that this makes the runtime even worse as there is an additional error
+accumulating as a result of the predictions.
 
-\section{Benchmark Results}
+\section{Experiments}
 The implementation of Thompson Sampling for MDPs ran very successfully: as time
 progressed, the agent was able to get to the goal much faster, and get a high
 reward. It did not work, however, for POMDPs. As time progressed, the agent seemed
 to take about the same amount of time to reach the goal on every execution, not
 improving in performance. We hypothesize that the reason is due to a lack of
-a good prior on the transition model: thompson sampling relies a lot on being
-able to count the number of transitions between states, given an action. This
-is very hard in a POMDP with a weak prior on its transition model, as it may have
-a completely wrong idea of where it ends up at each step. The observation model
-is supposed to improve its accuracy, but it was not sufficient in this case.
+a good prior on the transition model: Thompson sampling relies a lot on being
+able to count the number of transitions between states, given an action.
+
+\begin{figure}[ht]
+\begin{center}
+\centerline{\includegraphics[width=\textwidth]{img/mdp_imm_rewards.png}}
+\caption{Immediate reward for MDP solvers in a variety of parameter settings on
+the Gridworld example.
+Each of the settings for Thompson sampling vary how strong the misspecification of the
+prior as a uniform distribution, and yet in all three scenarios it indicates
+convergence. We also see that R-MAX performs better than the temporal difference methods.}
+\end{center}
+\end{figure}
+
+This is very hard in a POMDP with a weak prior on its transition model, as it
+may have a completely wrong idea of where it ends up at each step. The
+observation model is supposed to improve its accuracy, but it was not sufficient
+in this case. In fact, we can see this empirically by essentially hardcoding the
+optimal path by putting high probability on where it should go, and indeed it
+converges to the optimal quite quickly.
 
 To have an idea of how differently successful the same approach was on MDPs vs
 POMDPs, we show you our results:
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
-\includegraphics[width=0.5\textwidth]{img/pomdp.png}
+\includegraphics[width=0.75\textwidth]{img/pomdp.png}
 \caption{\label{fig:pomdp}Cumulative Reward for POMDP}
-\includegraphics[width=0.5\textwidth]{img/pomdp.png}
-\caption{\label{fig:mdp}Cumulative Reward for MDP}
 \end{figure}
 
 These graphs show the cumulative reward that the agent got as time progressed.
