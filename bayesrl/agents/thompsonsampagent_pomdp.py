@@ -23,7 +23,7 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
             # Return random action since there is no information.
             next_action = np.random.randint(self.num_actions)
             self.last_action = next_action
-            self.__observe(observation, self.belief)
+            self.__observe(observation)
             return self.last_action
 
         # Handle completion of episode.
@@ -31,8 +31,10 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
             # Proceed as normal.
             pass
 
+        belief = np.array(self.belief[:])
+        self.__update_belief(self.last_action, observation)
         for last_state,next_state in [(s,s_) for s in range(self.num_states) for s_ in range(self.num_states)]:
-            tp = self.belief[last_state]*self.transition_probs[last_state,self.last_action,next_state]
+            tp = belief[last_state]*self.belief[next_state]
             # Update the reward associated with (s,a,s') if first time.
             #if self.reward[last_state, self.last_action, next_state] == self.reward_param:
             self.reward[last_state, self.last_action, next_state] *= (1-tp)
@@ -45,7 +47,6 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
         if self.policy_step == self.T:
             self.__compute_policy()
 
-        self.belief = self.__new_belief(self.last_action,observation)
         # Choose next action according to policy.
         value_table = sum(self.belief[s]*self.value_table[s] for s in range(self.num_states))
         next_action = self._argmax_breaking_ties_randomly(value_table)
@@ -63,7 +64,7 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
             for a in xrange(self.num_actions):
                 self.transition_probs[s,a] = np.random.dirichlet(self.transition_observations[s,a] +\
                                                             self.dirichlet_param, size=1)
-        self._value_iteration(transition_probs)
+        self._value_iteration(self.transition_probs)
 
     def __update_belief(self,action,observation):
         self.__transition(action)
