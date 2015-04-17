@@ -32,8 +32,10 @@ class Trial(object):
         self.agent.reset()
 
         while iteration < self.MIN_ITERATIONS or episode < self.MIN_EPISODES:
+            print "Episode:",episode
             # Initialize the episode.
             self.task.reset()
+            self.agent.belief = [1./self.agent.num_states for _ in range(self.agent.num_states)]
             state = self.task.observe()
             reward = None
             cumulative_reward = 0
