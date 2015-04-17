@@ -7,6 +7,7 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
         self.observation_model = observation_model
         self.reset_belief()
         self.__compute_policy()
+	print self.observation_model
 
     def reset_belief(self):
         #self.belief = np.array([1./self.num_states for _ in range(self.num_states)])
@@ -46,6 +47,9 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
         # Update transition probabilities after every T steps
         if self.policy_step == self.T:
             self.__compute_policy()
+
+	print(self.belief)
+	input(self.last_action, observation)
 
         # Choose next action according to policy.
         value_table = sum(self.belief[s]*self.value_table[s] for s in range(self.num_states))
