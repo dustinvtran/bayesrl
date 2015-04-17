@@ -9,7 +9,9 @@ class ThompsonSampAgentPOMDP(ThompsonSampAgent):
         self.__compute_policy()
 
     def reset_belief(self):
-        self.belief = np.array([1./self.num_states for _ in range(self.num_states)])
+        #self.belief = np.array([1./self.num_states for _ in range(self.num_states)])
+        self.belief = np.zeros((81,))
+        self.belief[7*9+1] = 1.0
 
     def reset(self):
         super(ThompsonSampAgentPOMDP, self).reset()

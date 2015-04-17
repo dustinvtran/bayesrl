@@ -35,7 +35,8 @@ class Trial(object):
             print "Episode:",episode
             # Initialize the episode.
             self.task.reset()
-            self.agent.belief = [1./self.agent.num_states for _ in range(self.agent.num_states)]
+            if self.task.pomdp:
+                self.agent.reset_belief()
             state = self.task.observe()
             reward = None
             cumulative_reward = 0
