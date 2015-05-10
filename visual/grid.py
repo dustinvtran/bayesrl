@@ -26,7 +26,9 @@ class Grid(object):
         with self.l:
             (r,c) = self.robot
         if action in self.actions:
-            self.transition_update(action)
+            new_belief = self.transition_update(self.belief,action)
+            with self.l:
+                self.belief = new_belief
             errors = self.action_errors(action)
             if random.random() <= self.p_error:
                 action = random.choice(errors)
@@ -36,10 +38,7 @@ class Grid(object):
                 with self.l:
                     self.robot = (nr,nc)
 
-    def transition_update(self,action):
-        with self.l:
-            belief = [self.belief[r][:] for r in range(self.height)]
-
+    def transition_update(self,belief,action):
         new_belief = [[0. for c in range(self.width)] for r in range(self.height)]
         errors = self.action_errors(action)
         for r in range(self.height):
@@ -54,10 +53,7 @@ class Grid(object):
                 for (dr,dc) in errors:
                     nr,nc = (r+dr,c+dc) if not self.blocked((r+dr,c+dc)) else (r,c)
                     new_belief[nr][nc] += self.p_error/len(errors)*self.belief[r][c]
-
-        Z = sum([b for r in new_belief for b in r])
-        with self.l:
-            self.belief = [[b/Z for b in r] for r in new_belief]
+        return new_belief
 
     def dimensions(self,surface):
         pix_height = surface.get_height()
@@ -123,19 +119,22 @@ class SuperMarket(Grid):
 
         # Aisle belief state
         #
-        self.meat_belief = {1: 1./3., 2: 1./3., 3: 1./3.}
-        self.candy_belief = {1: 1./3., 2: 1./3., 3: 1./3.}
-        self.dairy_belief = {1: 1./3., 2: 1./3., 3: 1./3.}
+        self.aisles_belief = {
+            1: {'meat': 1./3., 'candy': 1./3., 'dairy': 1./3.},
+            2: {'meat': 1./3., 'candy': 1./3., 'dairy': 1./3.},
+            3: {'meat': 1./3., 'candy': 1./3., 'dairy': 1./3.}
+        }
 
         # Inner aisle belief state
         #
         meat_inner = dict((m,1./4.) for m in meats)
-        self.meat_content_belief = [meat_inner]*4
         candy_inner = dict((c,1./4.) for c in candy)
-        self.candy_content_belief = [candy_inner]*4
         dairy_inner = dict((d,1./4.) for d in dairy)
-        self.dairy_content_belief = [dairy_inner]*4
-
+        self.content_belief = {
+            'meat': dict(enumerate([meat_inner]*4)),
+            'candy': dict(enumerate([candy_inner]*4)),
+            'dairy': dict(enumerate([dairy_inner]*4))
+        }
 
     def cell_to_aisle(self,(r,c)):
         return 1 if (r,c) in self.aisle1 else \
@@ -147,7 +146,7 @@ class SuperMarket(Grid):
         # Draw belief
         #
         with self.l:
-            belief = [self.belief[r][:] for r in range(self.height)]
+            belief = [r[:] for r in self.belief]
         pix_height,pix_width,row_height,col_width = self.dimensions(surface)
         for r in range(self.height):
             for c in range(self.width):
@@ -173,3 +172,7 @@ class SuperMarket(Grid):
             belief = [r[:] for r in self.belief]
 
         new_belief = [[0. for c in range(self.width)] for r in range(self.height)]
+        for r in range(self.height):
+            for c in range(self.width):
+                # Filter out aisle
+                pass
