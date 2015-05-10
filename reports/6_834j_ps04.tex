@@ -17,6 +17,37 @@
 % Begin Document
 %##############################################################################
 
+\begin{center}
+\Large Task: Robot grocery shopping
+\end{center}
+\section{Motivation}
+\label{sec:motivation}
+Imagine that you're in your bed, hungry, and you just don't want to walk
+all the way to the grocery store. Equivalently, imagine you're working, doing the
+most exciting task to save humanity, and you have no time to grab food---menial
+tasks are beyond you. We'd like a robot which can intelligently learn to shop
+groceries for us: it understands a query from the user, moves to the
+grocery store, finds the relevant (and cheapest) items, purchases it, and comes
+back to the user.
+
+In our project we focus on the arguably most difficult of
+these tasks, which is to locate the groceries in the store. Moreover, we work
+under the realistic
+scenario in which the robot can only observe its surroundings (POMDP) rather
+than an understanding of where it precisely is in the store (MDP).
+
+Given this partially observable setting, the robot should learn how to obtain
+all items in the grocery store and do so in an optimal amount of time. It must
+learn: 1. how to navigate around the store without bumping into walls or aisles;
+2. intelligently search for the items by learning which aisle corresponds to
+which category; and 3. find the optimal path and sequence to obtain all items.
+
+\section{Procedure}
+\label{sec:procedure}
+
+\section{Experiments}
+\label{sec:experiments}
+
 \bibliography{6_834j_ps04}
 \bibliographystyle{plain}
 
