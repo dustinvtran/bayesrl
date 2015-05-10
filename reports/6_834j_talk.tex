@@ -1,3 +1,5 @@
+% NOTE: must be run with
+% xelatex -shell-escape 6_834j_talk
 \documentclass[10pt, compress]{beamer}
 
 \usetheme{m}
@@ -26,281 +28,44 @@
 
 \maketitle
 
-% TODO have this black and white, like david blei's!
+\begin{frame}[fragile]
+  \frametitle{Outline}
+
+  \begin{enumerate}
+  \item Background on POMDPs
+  \item Grocery shopping as planning in a POMDP
+  \item Results!
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Partially observable Markov decision process (POMDPs)}
+
+  background on POMDPs
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Partially observable Markov decision process (POMDPs)}
+
+  the planner we used
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Grocery shopping}
+
+  the task in the POMDP framework
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Results}
+
+  the task in the POMDP framework
+\end{frame}
 
 \plain{
-  How can we best learn parameters in a latent variable model?
+  {\Large Play with it!}\\[5ex]
+  \includegraphics{img/octocat.png}\\[3ex]
+  github.com/dustinvtran/bayesrl
 }
-
-\begin{frame}[fragile]
-  \frametitle{Motivation}
-
-  In statistical estimation theory, the \alert{ideal estimator} satisfies four requirements:
-  \begin{itemize}
-  \item consistency
-  %(loss functions here are nonconvex)
-  \item statistical efficiency
-  \item computational efficiency
-  %should not scale with the number of training examples in memory
-  %should scale linearly with the number of training examples in time
-  \item numerical stability
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Motivation}
-
-  The \alert{EM algorithm} satisfies:
-  \begin{itemize}
-  \item consistency \xmark
-  \item statistical efficiency \cmark~(assuming global)
-  \item computational efficiency \xmark
-  \item numerical stability \cmark
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Motivation}
-
-  \alert{Variational inference} satisfies:
-  \begin{itemize}
-  \item consistency \xmark
-  \item statistical efficiency \cmark~(assuming global; SVI with averaging)
-  \item computational efficiency \cmark~(SVI)
-  \item numerical stability \cmark~(implicit/proximal SVI)
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Motivation}
-
-  \alert{Markov chain Monte carlo} satisfies:
-  \begin{itemize}
-  \item consistency \cmark
-  \item statistical efficiency \cmark
-  \item computational efficiency \xmark
-  \item numerical stability \xmark (??)
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{What are spectral methods?}
-
-  They are matrix (tensor) decompositions which generate sample moments, i.e., observable representations that are functions of the parameters.
-  \begin{itemize}
-  \item Can solve for them and asymptotically recover the ground truth in expectation, i.e., lead to consistent estimators
-  \item Are consistent estimators for (certain) nonconvex problems!
-  \end{itemize}
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Motivation}
-
-  \alert{Spectral methods} satisfy:
-  \begin{itemize}
-  \item consistency \cmark
-  \item statistical efficiency \xmark
-  \item computational efficiency \cmark
-  \item numerical stability \xmark
-  \end{itemize}
-\end{frame}
-
-\plain{Can we leverage the optimization viewpoint to obtain statistical efficiency and numerical stability?}
-
-\begin{frame}[fragile]
-  \frametitle{Motivation}
-
-  Given a cost function $\ell(\theta; Y)$, can:
-  \begin{itemize}
-  \item Add regularization/priors $f(\theta)$
-  \item Add weighted distance (generalized method of moments)
-  \item Use efficient and numerically stable optimization routines (stochastic gradient methods)
-  \end{itemize}
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Background: Generalized method of moments (GMMs)}
-
-  Let $Y_1,\ldots,Y_N$ be $(d+1)$-dimensional observations generated from some
-  model with unknown parameters $\theta\in\Theta$.
-
-The $k$ \emph{moment conditions} for a vector-valued function $g(Y,\cdot):\Theta\to\mathbb{R}^k$ is
-\begin{equation*}
-m(\theta^*) \defeq \mathbb{E}[g(Y,\theta^*)] = 0_{k\times 1}
-\end{equation*}
-The \emph{observable representations}, or sample moments, are
-\begin{equation*}
-\widehat m(\theta) \defeq \frac{1}{N}\sum_{n=1}^N g(Y_n,\theta)
-\end{equation*}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Background: Generalized method of moments (GMMs)}
-
-We aim to minimize the normed
-distance $\|\widehat m(\theta)\|$ for some choice of $\|\cdot\|$. Define the \emph{weighted Frobenius norm} as
-\begin{equation*}
-\|\widehat m(\theta)\|_W^2 \defeq \widehat m(\theta)^T W \widehat m(\theta),
-\end{equation*}
-where $W$ is a positive definite matrix. The \emph{generalized method of moments} (GMM) estimator is
-\begin{equation*}
-\theta^{gmm} = \operatornamewithlimits{arg\ min}_{\theta\in\Theta}
-\|\widehat m(\theta)\|_W^2
-\end{equation*}
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Background: Generalized method of moments (GMMs)}
-
-  Under standard assumptions$^*$, the GMM estimator $\theta^{gmm}$ is consistent and
-  asymptotically normal. Moreover, if
-  \begin{equation*}
-  W\defeq \mathbb{E}[g(Y_n,\theta^*)g(Y_n,\theta^*)^T]^{-1}
-  \end{equation*}
-  then $\theta^{gmm}$ is statistically efficient in the class of asymptotically
-  normal estimators (and conditioned only on the information in the moment!).
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Hidden markov model}
-Time $t\in\{1,2,\ldots\}$
-\begin{itemize}
-\item
-Hidden states $h_t\in\{1,\ldots,m\}$
-\item
-Observations $x_t\in\{1,\ldots,n\}$ ($m\le n$)
-\end{itemize}
-Given full rank matrices $T\in\mathbb{R}^{m\times m}$, $O\in\mathbb{R}^{n\times m}$,
-the dynamical system for HMMs is given by
-\begin{align*}
-T_{ij} &\defeq P[h_{t+1} = i\mid h_t=j] \iff P[h_{t+1}] = T P[h_t]\\
-O_{ij} &\defeq P[x_t = i\mid h_t = j] \iff P[x_t] = O P[h_t]
-\end{align*}
-and $\pi\defeq P[h_1]\in\mathbb{R}^m$ the initial state distribution.
-
-Goal: Estimate the \alert{joint distribution} $P[x_{1:t}]$, which also allows one to make predictions: $P[x_{t+1}\mid x_{1:t}]=[x_{1:t+1}]/P[x_{1:t}]$.
-
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Hidden markov model}
-
-  Notation: $P[x,y,\cdots]_{ij\cdots} \defeq P(x=i, y=j, \cdots)$
-
-  \begin{theorem}
-  The joint probability matrix $P[x_{t+1}, x_t]$ satisfies the following for all columns $j\in\{1,\ldots,n\}$:
-  \begin{equation*}
-  P[x_{t+1}, x_t]_{\cdot j} = \Phi_j P[x_t]\qquad \Phi_j\defeq OT\operatorname{diag}(O_{j\cdot})O^\dagger
-  \end{equation*}
-  Furthermore,
-  \begin{equation*}
-  P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} = \Phi_j P[x_t, x_{1:t-1}]_{\cdot \vec{k}}
-  \end{equation*}
-  where $\vec{k}$ represents a sequence of states for $x_{1:t-1}$, i.e., $x_1=k_1,\ldots,x_{t-1}=k_{t-1}$.
-  \end{theorem}
-
-\end{frame}
-
-\begin{frame}
-  \frametitle{Hidden markov model}
-
-  We aim to solve
-  \begin{equation*}
-  \operatornamewithlimits{min}_{\Phi_{j}}
-  \|\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} - \Phi_j \widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}\|_F
-  \end{equation*}
-  such that $\operatorname{rank}(\Phi_j)\le m$ for all $j\in\{1,\ldots,n\}$.
-  By the Eckart-Young-Mirsky theorem, this is equivalent to solving
-  \begin{equation*}
-  \operatornamewithlimits{min}_{\Phi_{j}}
-  \|U_j^T\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} - \Phi_j U_j^T \widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}\|_F
-  \end{equation*}
-  where $U_j$ is the matrix of $m$ left-singular vectors of
-  \begin{equation*}
-  \mathbb{E}[\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}}\widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}^T]
-  \end{equation*}
-
-\end{frame}
-
-\begin{frame}
-  \frametitle{Hidden markov model}
-
-  \begin{itemize}
-  \item It's convex! (optimization leads to consistent estimator)
-  \item This recovers the same \textbf{(???)} parameters as the method of moments estimation derived in \alert{Hsu et al. (2009)}.
-  \end{itemize}
-
-\end{frame}
-
-\begin{frame}
-  \frametitle{Hidden markov model}
-
-  Use weighted Frobenius norm instead for GMM estimation:
-  \begin{equation*}
-  \operatornamewithlimits{min}_{\Phi_{j}}
-  \|\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} - \Phi_j \widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}\|_W^2
-  \end{equation*}
-  such that $\operatorname{rank}(\Phi_j)\le m$.
-
-\end{frame}
-
-\begin{frame}
-  \frametitle{Hidden markov model}
-
-  And add your favorite regularizers/priors!
-  \begin{equation*}
-  \operatornamewithlimits{min}_{\Phi_{j}}
-  \|\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} - \Phi_j \widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}\|_W^2 + \alpha\|\Phi_j\|_1 + (1-\alpha)\|\Phi_j\|_F^2
-  \end{equation*}
-  such that $\operatorname{rank}(\Phi_j)\le m$.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Hidden markov model}
-  \begin{equation*}
-  \operatornamewithlimits{min}_{\Phi_{j}}
-  \|\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} - \Phi_j \widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}\|_W^2
-  \qquad \operatorname{rank}(\Phi_j)\le m
-  \end{equation*}
-
-
-  1. This extends naturally to predictive state representations (\alert{Boots and Gordon, 2010}) (\textbf{???} work in progress).
-
-  2. Remark on local optima in the optimization
-  \begin{itemize}
-  \item In the unweighted case (MoM), any local optima are necessarily global
-  \item In the weighted case (GMM), this no longer holds (\alert{Nati and Jaakola, 2003})
-%. However, local solutions for are guaranteed(\textbf{???}), or at the least, recover more efficient estimators than the unweighted in practice
-  \end{itemize}
-
-\end{frame}
-
-\begin{frame}
-  \begin{equation*}
-  \operatornamewithlimits{min}_{\Phi_{j}}
-  \|\widehat P[x_{t+1}, x_t, x_{1:t-1}]_{\cdot j\vec{k}} - \Phi_j \widehat P[x_t, x_{1:t-1}]_{\cdot \vec{k}}\|_W^2
-  \qquad \operatorname{rank}(\Phi_j)\le m
-  \end{equation*}
-  \textbf{If the weighting introduces local optima, then what's the point?}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Conclusion}
-
-  Reframing moment estimation from spectral methods as \alert{optimization} leads to an alternative viewpoint on improving estimation:
-  \begin{itemize}
-  \item consistency \cmark~\textbf{(???)}
-  \item statistical efficiency \cmark~(GMM estimator, using SGD with averaging)
-  \item computational efficiency \cmark~(SGD)
-  \item numerical stability \cmark~(implicit/proximal SGD)
-  \end{itemize}
-
-\end{frame}
-
-\plain{Questions?}
 
 \end{document}
