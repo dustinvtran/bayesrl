@@ -92,10 +92,10 @@ class Grid(object):
 
 class SuperMarket(Grid):
     def __init__(self):
-        aisle1 = [(1,1),(2,1),(3,1),(4,1)]
-        aisle2 = [(1,3),(2,3),(3,3),(4,3)]
-        aisle3 = [(1,5),(2,5),(3,5),(4,5)]
-        aisles = aisle1 + aisle2 + aisle3
+        self.aisle1 = [(1,1),(2,1),(3,1),(4,1)]
+        self.aisle2 = [(1,3),(2,3),(3,3),(4,3)]
+        self.aisle3 = [(1,5),(2,5),(3,5),(4,5)]
+        aisles = self.aisle1 + self.aisle2 + self.aisle3
 
         width = height = 7
         possible_robot = [(0,0),(6,6)]
@@ -115,10 +115,33 @@ class SuperMarket(Grid):
         random.shuffle(meats)
         random.shuffle(candy)
         random.shuffle(dairy)
-        meat_candy_dairy = [aisle1,aisle2,aisle3]
+        meat_candy_dairy = [self.aisle1,self.aisle2,self.aisle3]
         random.shuffle(meat_candy_dairy)
         meat_aisle,candy_aisle,dairy_aisle = meat_candy_dairy
+
         self.obs = dict(zip(meat_aisle,meats) + zip(candy_aisle,candy) + zip(dairy_aisle,dairy))
+
+        # Aisle belief state
+        #
+        self.meat_belief = {1: 1./3., 2: 1./3., 3: 1./3.}
+        self.candy_belief = {1: 1./3., 2: 1./3., 3: 1./3.}
+        self.dairy_belief = {1: 1./3., 2: 1./3., 3: 1./3.}
+
+        # Inner aisle belief state
+        #
+        meat_inner = dict((m,1./4.) for m in meats)
+        self.meat_content_belief = [meat_inner]*4
+        candy_inner = dict((c,1./4.) for c in candy)
+        self.candy_content_belief = [candy_inner]*4
+        dairy_inner = dict((d,1./4.) for d in dairy)
+        self.dairy_content_belief = [dairy_inner]*4
+
+
+    def cell_to_aisle(self,(r,c)):
+        return 1 if (r,c) in self.aisle1 else \
+            2 if (r,c) in self.aisle2 else \
+            3 if (r,c) in self.aisle3 else \
+            None
 
     def draw(self,surface):
         # Draw belief
@@ -144,3 +167,9 @@ class SuperMarket(Grid):
         for dr,dc in [(0,-1),(1,0),(0,1),(-1,0)]:
             obs += (self.obs.get((r+dr,c+dc),None),)
         return obs
+
+    def observation_update(self, observation):
+        with self.l:
+            belief = [r[:] for r in self.belief]
+
+        new_belief = [[0. for c in range(self.width)] for r in range(self.height)]
