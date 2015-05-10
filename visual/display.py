@@ -13,6 +13,9 @@ done = False
 surface = None
 drawables = []
 
+def event_handler(e):
+    pass
+
 def main(args):
     global done,surface,drawables
     pygame.init()
@@ -28,14 +31,8 @@ def main(args):
         for event in pygame.event.get():
             if event.type == QUIT:
                 done = True
-            elif event.type == MOUSEBUTTONDOWN and len(args) > 1 and args[1] == "draw":
-                if event.button == 1:
-                    if start:
-                        segments.append([])
-                        start = False
-                    segments[-1].append(event.pos)
-                elif event.button == 3:
-                    start = True
+            else:
+                event_handler(event)
 
         fpsClock.tick(FPS)
         pygame.display.update()

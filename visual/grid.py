@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 from colors import *
 import random
+import IPython
 
 class Grid(object):
     def __init__(self, height, width, aisles, robot):
@@ -91,6 +92,7 @@ class SuperMarket(Grid):
         self.aisle1 = [(1,1),(2,1),(3,1),(4,1)]
         self.aisle2 = [(1,3),(2,3),(3,3),(4,3)]
         self.aisle3 = [(1,5),(2,5),(3,5),(4,5)]
+        self.aisles = [aisle1,aisle2,aisle3]
         aisles = self.aisle1 + self.aisle2 + self.aisle3
 
         width = height = 7
@@ -105,41 +107,47 @@ class SuperMarket(Grid):
         self.actions = [(0,-1),(1,0),(0,1),(-1,0)]
         self.p_error = 0.2
 
-        meats = ['chicken','beef','pork','turkey']
-        candy = ['oreo','twix','nutella','kitkat']
-        dairy = ['milk','iscream','butter','curd']
-        random.shuffle(meats)
-        random.shuffle(candy)
-        random.shuffle(dairy)
+        self.meats = ['chicken','beef','pork','turkey']
+        self.candy = ['oreo','twix','nutella','kitkat']
+        self.dairy = ['milk','iscream','butter','curd']
+        random.shuffle(self.meats)
+        random.shuffle(self.candy)
+        random.shuffle(self.dairy)
         meat_candy_dairy = [self.aisle1,self.aisle2,self.aisle3]
         random.shuffle(meat_candy_dairy)
         meat_aisle,candy_aisle,dairy_aisle = meat_candy_dairy
 
-        self.obs = dict(zip(meat_aisle,meats) + zip(candy_aisle,candy) + zip(dairy_aisle,dairy))
+        self.obs = dict(zip(meat_aisle,self.meats) + zip(candy_aisle,self.candy) + zip(dairy_aisle,self.dairy))
 
         # Aisle belief state
         #
         self.aisles_belief = {
-            1: {'meat': 1./3., 'candy': 1./3., 'dairy': 1./3.},
-            2: {'meat': 1./3., 'candy': 1./3., 'dairy': 1./3.},
-            3: {'meat': 1./3., 'candy': 1./3., 'dairy': 1./3.}
+            1: {'meats': 1./3., 'candy': 1./3., 'dairy': 1./3.},
+            2: {'meats': 1./3., 'candy': 1./3., 'dairy': 1./3.},
+            3: {'meats': 1./3., 'candy': 1./3., 'dairy': 1./3.}
         }
 
         # Inner aisle belief state
         #
-        meat_inner = dict((m,1./4.) for m in meats)
-        candy_inner = dict((c,1./4.) for c in candy)
-        dairy_inner = dict((d,1./4.) for d in dairy)
+        meat_inner = dict((m,1./len(self.meats)) for m in self.meats)
+        candy_inner = dict((c,1./len(self.candy)) for c in self.candy)
+        dairy_inner = dict((d,1./len(self.dairy)) for d in self.dairy)
         self.content_belief = {
-            'meat': dict(enumerate([meat_inner]*4)),
-            'candy': dict(enumerate([candy_inner]*4)),
-            'dairy': dict(enumerate([dairy_inner]*4))
+            'meats': dict(enumerate([meat_inner]*len(self.meats))),
+            'candy': dict(enumerate([candy_inner]*len(self.candy))),
+            'dairy': dict(enumerate([dairy_inner]*len(self.dairy)))
         }
 
     def cell_to_aisle(self,(r,c)):
-        return 1 if (r,c) in self.aisle1 else \
-            2 if (r,c) in self.aisle2 else \
-            3 if (r,c) in self.aisle3 else \
+        return (1,self.aisle1.index((r,c))) if (r,c) in self.aisle1 else \
+            (2,self.aisle2.index((r,c))) if (r,c) in self.aisle2 else \
+            (3,self.aisle3.index((r,c))) if (r,c) in self.aisle3 else \
+            None
+
+    def category(self, product):
+        return 'meats' if product in self.meats else \
+            'candy' if product in self.candy else \
+            'dairy' if product in self.dairy else \
             None
 
     def draw(self,surface):
@@ -165,14 +173,50 @@ class SuperMarket(Grid):
         obs = ()
         for dr,dc in [(0,-1),(1,0),(0,1),(-1,0)]:
             obs += (self.obs.get((r+dr,c+dc),None),)
+        self.observation_update(obs)
         return obs
 
+    EPSILON = 1e-7
     def observation_update(self, observation):
         with self.l:
             belief = [r[:] for r in self.belief]
 
-        new_belief = [[0. for c in range(self.width)] for r in range(self.height)]
-        for r in range(self.height):
-            for c in range(self.width):
-                # Filter out aisle
-                pass
+        # Update position belief
+        obs_cells = [(obs,(r+dr,c+dc),(r,c))
+                     for r in range(self.height)
+                     for c in range(self.width)
+                     for (obs,(dr,dc)) in zip(observation, [(0,-1),(1,0),(0,1),(-1,0)])
+                     if belief[r][c] > self.EPSILON
+        ] # (obs,(row,col),parent)
+        for (obs,neigh,(r,c)) in obs_cells:
+            if self.cell_to_aisle(neigh) is None:
+                if obs is not None:
+                    belief[r][c] = 0
+            else:
+                if obs is None:
+                    belief[r][c] = 0
+                else:
+                    aisle,pos = self.cell_to_aisle(neigh)
+                    cat = self.category(obs)
+                    belief[r][c] *= self.aisles_belief[aisle][cat] * self.content_belief[cat][pos][obs]
+        Z = sum(b for r in belief for b in r)
+        belief = [[b/Z for b in r] for r in belief]
+        with self.l:
+            self.belief = belief
+        if not all(o is None for o in observation):
+            obs_cells = [(obs,(r+dr,c+dc),belief[r][c],(r,c))
+                         for r in range(self.height)
+                         for c in range(self.width)
+                         for (obs,(dr,dc)) in zip(observation, [(0,-1),(1,0),(0,1),(-1,0)])
+                         if belief[r][c] > self.EPSILON
+                     ] # (obs,(row,col),prob,parent)
+            self.observation_world_update(obs_cells)
+
+    def observation_world_update(self,obs_cells):
+        # Update world belief
+        for (obs,neigh,prob,(r,c)) in obs_cells:
+            if self.cell_to_aisle(neigh) is None:
+                continue
+            aisle,pos = self.cell_to_aisle(neigh)
+            cat = self.category(obs)
+            pO = prob*self.aisles_belief[aisle][cat]*self.content_belief[cat][pos][obs]
