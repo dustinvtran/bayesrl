@@ -6,6 +6,7 @@ import display
 import sys
 
 g = SuperMarket()
+a1,a2,a3,a4 = g.actions
 display.drawables.append(g.draw)
 t = Thread(target=display.main, args=[sys.argv])
 t.start()
