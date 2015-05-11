@@ -178,8 +178,8 @@ environment it is acting in, in the form of a conditional probability distributi
 $P(observation \mid state)$. Astr\"{o}m has shown that a properly updated probability
 distribution over the state space $S$ is sufficient to summarize all the observable
 history of a POMDP agent without loss of optimality \cite{astrom1965optimal}. 
-Thus we add a step of updating the belief state to the MDP paradigm. And the belief state is used to
-update the transition model instead of the underlying state.
+Thus we add a step of updating the belief state to the MDP paradigm. And the belief state, instead
+of the underlying state, is used to update the transition model.
 
 \subsection{Organization of Code}
 We follow the directory structure specified in the problem set, with two
@@ -196,7 +196,9 @@ convention for installing modules.
 \section{Analysis}
 
 \subsection{Runtime}
-All solvers we implement are guaranteed to converge in polynomial time for MDPs,
+The algorithm takes $O(\mid S \mid ^2 \mid A \mid)$ to calculate the transition probabilities, the
+expected rewards and the belief state. It is uncertain how many time steps are required for
+convergence. All solvers we implement are guaranteed to converge in polynomial time for MDPs,
 although unfortunately we have not seen stricter theoretical results on the
 upper bounds than this. This certainly makes sense as it is true for all
 environments regardless of the pathological scenario. However, it would
