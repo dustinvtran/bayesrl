@@ -92,7 +92,7 @@ class SuperMarket(Grid):
         self.aisle1 = [(1,1),(2,1),(3,1),(4,1)]
         self.aisle2 = [(1,3),(2,3),(3,3),(4,3)]
         self.aisle3 = [(1,5),(2,5),(3,5),(4,5)]
-        self.aisles = [aisle1,aisle2,aisle3]
+        self.aisles = [self.aisle1,self.aisle2,self.aisle3]
         aisles = self.aisle1 + self.aisle2 + self.aisle3
 
         width = height = 7
@@ -107,6 +107,7 @@ class SuperMarket(Grid):
         self.actions = [(0,-1),(1,0),(0,1),(-1,0)]
         self.p_error = 0.2
 
+        self.targets = set(['oreo','iscream','milk'])
         self.meats = ['chicken','beef','pork','turkey']
         self.candy = ['oreo','twix','nutella','kitkat']
         self.dairy = ['milk','iscream','butter','curd']
@@ -129,13 +130,13 @@ class SuperMarket(Grid):
 
         # Inner aisle belief state
         #
-        meat_inner = dict((m,1./len(self.meats)) for m in self.meats)
-        candy_inner = dict((c,1./len(self.candy)) for c in self.candy)
-        dairy_inner = dict((d,1./len(self.dairy)) for d in self.dairy)
+        meat_inner = lambda: dict((m,1./len(self.meats)) for m in self.meats)
+        candy_inner = lambda: dict((c,1./len(self.candy)) for c in self.candy)
+        dairy_inner = lambda: dict((d,1./len(self.dairy)) for d in self.dairy)
         self.content_belief = {
-            'meats': dict(enumerate([meat_inner]*len(self.meats))),
-            'candy': dict(enumerate([candy_inner]*len(self.candy))),
-            'dairy': dict(enumerate([dairy_inner]*len(self.dairy)))
+            'meats': dict(enumerate([meat_inner() for _ in self.meats])),
+            'candy': dict(enumerate([candy_inner() for _ in self.candy])),
+            'dairy': dict(enumerate([dairy_inner() for _ in self.dairy]))
         }
 
     def cell_to_aisle(self,(r,c)):
@@ -174,6 +175,7 @@ class SuperMarket(Grid):
         for dr,dc in [(0,-1),(1,0),(0,1),(-1,0)]:
             obs += (self.obs.get((r+dr,c+dc),None),)
         self.observation_update(obs)
+        list(self.targets.discard(o) for o in obs)
         return obs
 
     EPSILON = 1e-7
@@ -208,15 +210,53 @@ class SuperMarket(Grid):
                          for r in range(self.height)
                          for c in range(self.width)
                          for (obs,(dr,dc)) in zip(observation, [(0,-1),(1,0),(0,1),(-1,0)])
-                         if belief[r][c] > self.EPSILON
+                         if obs is not None
                      ] # (obs,(row,col),prob,parent)
             self.observation_world_update(obs_cells)
 
     def observation_world_update(self,obs_cells):
+        with self.l:
+            belief = [r[:] for r in self.belief]
         # Update world belief
+        op = {}
+        ac = {}
         for (obs,neigh,prob,(r,c)) in obs_cells:
             if self.cell_to_aisle(neigh) is None:
                 continue
             aisle,pos = self.cell_to_aisle(neigh)
             cat = self.category(obs)
-            pO = prob*self.aisles_belief[aisle][cat]*self.content_belief[cat][pos][obs]
+
+            if obs not in op:
+                op[obs] = {}
+            op[obs][pos] = op[obs].get(pos,0)+prob
+
+            if aisle not in ac:
+                ac[aisle] = {}
+            ac[aisle][cat] = ac[aisle].get(cat,0)+prob
+
+        # Update aisle beliefs
+        #
+        ab = self.aisles_belief
+        for a in ac:
+            for cat in ac[a]:
+                prob = ac[a][cat]
+                Z1 = ab[a][cat]
+                Z2 = 1-Z1
+                if Z1 == 0 or Z2 == 0:
+                    continue
+                for c in ab[a]:
+                    ab[a][c] *= prob/Z1 if (c==cat) else (1.-prob)/Z2
+
+        # Update aisle position beliefs
+        #
+        for obs in op:
+            cat = self.category(obs)
+            cb = self.content_belief[cat]
+            for p in cb:
+                prob = op[obs][p]
+                Z1 = cb[p][obs]
+                Z2 = 1-Z1
+                if Z1 == 0 or Z2 == 0:
+                    continue
+                for o in cb[p]:
+                    cb[p][o] *= prob/Z1 if (o==obs) else (1.-prob)/Z2
