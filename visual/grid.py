@@ -39,6 +39,22 @@ class Grid(object):
                 with self.l:
                     self.robot = (nr,nc)
 
+    def transition_probs(self,state,action):
+	t_probs = {}
+	r, c = state
+        errors = self.action_errors(action)
+	dr,dc = action
+	new_state = (r+dr,c+dc) if not self.blocked((r+dr,c+dc)) else (r,c)
+	t_probs[new_state] = 1. - self.p_error
+	for (dr,dc) in errors:
+	    new_state = (r+dr,c+dc) if not self.blocked((r+dr,c+dc)) else (r,c)
+	    if new_state in t_probs:
+		t_probs[new_state] += self.p_error/len(errors)
+	    else:
+		t_probs[new_state] = self.p_error/len(errors)
+		
+        return t_probs
+
     def transition_update(self,belief,action):
         new_belief = [[0. for c in range(self.width)] for r in range(self.height)]
         errors = self.action_errors(action)
