@@ -35,7 +35,8 @@ def main(args):
                 event_handler(event)
 
         fpsClock.tick(FPS)
-        pygame.display.update()
+        pygame.display.flip()
+        # pygame.display.update()
 
     pygame.quit()
     return 0
