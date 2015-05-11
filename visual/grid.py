@@ -92,7 +92,7 @@ class SuperMarket(Grid):
         self.aisle1 = [(1,1),(2,1),(3,1),(4,1)]
         self.aisle2 = [(1,3),(2,3),(3,3),(4,3)]
         self.aisle3 = [(1,5),(2,5),(3,5),(4,5)]
-        self.aisles = [self.aisle1,self.aisle2,self.aisle3]
+        self.aisles_list = [self.aisle1,self.aisle2,self.aisle3]
         aisles = self.aisle1 + self.aisle2 + self.aisle3
 
         width = height = 7
@@ -139,6 +139,23 @@ class SuperMarket(Grid):
             'dairy': dict(enumerate([dairy_inner() for _ in self.dairy]))
         }
 
+        self.images = {
+            'chicken' : pygame.image.load("images/chicken.jpg"),
+            'pork'    : pygame.image.load("images/pork.jpg"),
+            'turkey'  : pygame.image.load("images/turkey.gif"),
+            'beef'    : pygame.image.load("images/beef.jpg"),
+
+            'oreo'    : pygame.image.load("images/oreo.jpg"),
+            'twix'    : pygame.image.load("images/twix.jpg"),
+            'nutella' : pygame.image.load("images/nutella.jpg"),
+            'kitkat'  : pygame.image.load("images/kitkat.jpg"),
+
+            'milk'    : pygame.image.load("images/milk.jpg"),
+            'curd'    : pygame.image.load("images/curd.jpg"),
+            'iscream' : pygame.image.load("images/iscream.jpg"),
+            'butter'  : pygame.image.load("images/butter.jpg")
+        }
+
     def cell_to_aisle(self,(r,c)):
         return (1,self.aisle1.index((r,c))) if (r,c) in self.aisle1 else \
             (2,self.aisle2.index((r,c))) if (r,c) in self.aisle2 else \
@@ -151,6 +168,7 @@ class SuperMarket(Grid):
             'dairy' if product in self.dairy else \
             None
 
+    transformed = False
     def draw(self,surface):
         # Draw belief
         #
@@ -162,6 +180,14 @@ class SuperMarket(Grid):
                 surface.fill(gray(belief[r][c]),
                              rect=(c*col_width,r*row_height,col_width,row_height))
         super(SuperMarket,self).draw(surface)
+        for (r,c) in self.aisles:
+            prod = self.obs[(r,c)]
+            img = self.images[prod]
+            if not self.transformed:
+                self.images[prod] = pygame.transform.scale(img.convert(),(col_width,row_height))
+                img = self.images[prod]
+            surface.blit(img, dest=(c*col_width,r*row_height))
+        self.transformed = True
 
     def action_errors(self,action):
         i = self.actions.index(action)
