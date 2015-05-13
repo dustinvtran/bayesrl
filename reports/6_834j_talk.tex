@@ -25,6 +25,12 @@
 \institute{MIT, 6.834j Cognitive Robotics}
 
 \begin{document}
+%(2 min) Background on POMDPs, belief-state MDP, MDP solvers we have
+%(2 min) Setup: Grocery shopping as planning in a POMDP
+%(4 min) Demo
+%(2 min) The solver actually used (value iteration)
+%(1 min) Things that failed (Thompson sampling)
+%(1 min) Q&A
 
 \maketitle
 
@@ -32,39 +38,68 @@
   \frametitle{Outline}
 
   \begin{enumerate}
-  \item (2 min) Background on POMDPs, belief-state MDP, MDP solvers we have
-  \item (2 min) Setup: Grocery shopping as planning in a POMDP
-  \item (4 min) Demo
-  \item (2 min) The solver actually used (value iteration)
-  \item (1 min) Things that failed (Thompson sampling)
-  \item (1 min) Q\&A
+  \item Background on POMDPs
+  \item Grocery shopping as planning in a POMDP
+  \item Demo!
+  \item What worked
+  \item What failed
   \end{enumerate}
+
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Partially observable Markov decision process (POMDPs)}
+  \frametitle{Background}
 
-  Collection of objects $(S,A,\Omega,R,T,O)$
+  A \emph{partially observable Markov decision process} (POMDP) is a collection
+  of objects $(S,A,\Omega,R,T,O)$
 
   \begin{itemize}
   \item $S$: state space
   \item $A$: action space
   \item $\Omega$: observation space
+  \item $R: S \times A \rightarrow \mathbb{R}$ reward function
   \item $T$: transition operator. $T(s' \mid s,a)$ is probability of next state $s'$ given state $s$ and action $a$
   \item $O$: observable operator. $O(o \mid s)$ is probability of observing
   $o$ given at state $s$
-  \item $R: S \times A \rightarrow \mathbb{R}$ reward function
   \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Partially observable Markov decision process (POMDPs)}
+  \frametitle{Background}
 
   \begin{figure}[ht]
   \begin{center}
-  \centerline{\includegraphics[width=1.5\textwidth]{img/agent_environment.png}}
+  \centerline{\includegraphics[width=1.25\textwidth]{img/agent_environment_untitled.png}}
   \end{center}
   \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Background}
+  Belief-state MDP
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Background}
+
+  Implemented MDP solvers:
+  \begin{itemize}
+  \item Q-learning
+  \item SARSA
+  \item R-MAX
+  \item Thompson sampling
+  \end{itemize}
+
+  There are a lot!
+  \begin{itemize}
+  \item Function approximations with adaptive basis functions
+  \item BOSS
+  \item Spectral methods
+  \item Skill chaining
+  \item $\cdots$
+  \end{itemize}
+
 \end{frame}
 
 \begin{frame}[fragile]
@@ -73,18 +108,28 @@
   the task in the POMDP framework
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Grocery shopping}
+
+  how the software works, etc.
+\end{frame}
+
 \plain{demo}
 
 \begin{frame}[fragile]
-  \frametitle{Demo}
+  \frametitle{Our working solver}
 
-  link from here to a bunch of videos and an interactive demo
+  how to do value iteration
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Results}
+  \frametitle{Failed tasks}
 
-  the task in the POMDP framework
+  \begin{itemize}
+  \item Value iteration as a belief-state MDP
+  \item Thompson sampling
+  \item ...
+  \end{itemize}
 \end{frame}
 
 \plain{
