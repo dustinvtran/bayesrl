@@ -43,13 +43,17 @@ class Count:
 def process(every_frames):
     counter = Count()
     counter.n = 0
+    counter.success = False
     def autonomous_action():
         if counter.n == 0 and len(g.targets) > 0:
+            counter.success = False
             a._value_iteration()
             g.set_robot(a.next_action())
             g.observe()
         elif len(g.targets) == 0:
-            print "SUCCESS!!!!!!"
+            if not counter.success:
+                counter.success = True
+                print "SUCCESS!!!!!!"
         counter.n = (counter.n+1)%every_frames
     return autonomous_action
 
