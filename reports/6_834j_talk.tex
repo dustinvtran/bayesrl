@@ -105,13 +105,45 @@
 \begin{frame}[fragile]
   \frametitle{Grocery shopping}
 
-  the task in the POMDP framework
+  Grid World POMDP
+
+  Uncertain movement
+
+  \centerline{\includegraphics[width=0.22\textwidth]{img/uncertain_transition.jpg}}
+
+  Can only see around current cell (partially observable)
+
+  \centerline{\includegraphics[width=0.22\textwidth]{img/partial_obs.jpg}}
+
+  World is not fully known beforehand
+  \begin{itemize}
+  \item Model of how items in the same aisle correlate.
+  \item Unknown arrangement of aisles
+  \item Unknown arrangement of items within aisles
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Grocery shopping}
 
-  how the software works, etc.
+  {\it pygame} running the visuals
+
+  Every second:
+  \begin{itemize}
+  \item Agent provides next action based on current belief state
+  \item Simulator executes action (errors may happen)
+  \item Belief state is updated based on transition probabilities
+  \item Belief state is updated based on observation
+  \item Belief about the world is updated based on belief state, and observation
+  \end{itemize}
+
+  Challenges:
+  \begin{itemize}
+  \item Markov assumption is not completely accurate
+  \item Bias towards increasing probability of most likely states
+    % (state increases observation probability, observation increases state probability)
+  \item
+  \end{itemize}
 \end{frame}
 
 \plain{demo}
