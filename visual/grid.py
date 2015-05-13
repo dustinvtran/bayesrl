@@ -1,5 +1,6 @@
 #!/usr/bin/python2
 from threading import Lock
+from math import *
 import pygame
 from pygame.locals import *
 from colors import *
@@ -52,24 +53,15 @@ class Grid(object):
 		t_probs[new_state] += self.p_error/len(errors)
 	    else:
 		t_probs[new_state] = self.p_error/len(errors)
-		
         return t_probs
 
     def transition_update(self,belief,action):
         new_belief = [[0. for c in range(self.width)] for r in range(self.height)]
-        errors = self.action_errors(action)
         for r in range(self.height):
             for c in range(self.width):
-                # Correct action
-                #
-                dr,dc = action
-                nr,nc = (r+dr,c+dc) if not self.blocked((r+dr,c+dc)) else (r,c)
-                new_belief[nr][nc] += (1.0-self.p_error)*self.belief[r][c]
-                # Error action
-                #
-                for (dr,dc) in errors:
-                    nr,nc = (r+dr,c+dc) if not self.blocked((r+dr,c+dc)) else (r,c)
-                    new_belief[nr][nc] += self.p_error/len(errors)*self.belief[r][c]
+                t_probs = self.transition_probs((r,c),action)
+                for (nr,nc) in t_probs:
+                    new_belief[nr][nc] += t_probs[(nr,nc)]*self.belief[r][c]
         return new_belief
 
     def dimensions(self,surface):
@@ -81,7 +73,7 @@ class Grid(object):
 
         return pix_height,pix_width,row_height,col_width
 
-    def draw(self,surface):
+    def draw(self,surface,robot=True):
         pix_height,pix_width,row_height,col_width = self.dimensions(surface)
         # Draw rows
         #
@@ -97,65 +89,76 @@ class Grid(object):
         for (r,c) in self.aisles:
             surface.fill(black, rect=(c*col_width,r*row_height,col_width,row_height))
 
-        with self.l:
-            (r,c) = self.robot
-        (x,y) = int((c+0.5)*col_width),int((r+0.5)*row_height)
-        radius = int(min(row_height,col_width)/2.0)
-        pygame.draw.circle(surface,red,(x,y),radius,10)
+        if robot:
+            with self.l:
+                (r,c) = self.robot
+            (x,y) = int((c+0.5)*col_width),int((r+0.5)*row_height)
+            radius = int(min(row_height,col_width)/2.0)
+            pygame.draw.circle(surface,red,(x,y),radius,10)
 
 class SuperMarket(Grid):
     def __init__(self):
-        self.aisle1 = [(1,1),(2,1),(3,1),(4,1)]
-        self.aisle2 = [(1,3),(2,3),(3,3),(4,3)]
-        self.aisle3 = [(1,5),(2,5),(3,5),(4,5)]
-        self.aisles_list = [self.aisle1,self.aisle2,self.aisle3]
-        aisles = self.aisle1 + self.aisle2 + self.aisle3
+        self.aisles_content = {
+            'meats': ['chicken','beef','pork','turkey'],
+            'candy': ['oreo','twix','nutella','kitkat'],
+            'dairy': ['milk','iscream','butter','curd'],
+            'drink': ['water','juice','soda','smoothi'],
+            'grain': ['rice','flour','barley', 'beans']
+        }
 
-        width = height = 7
-        possible_robot = [(0,0),(6,6)]
+        self.aisles_list = [
+            [(i+1,2*n+1) for i in range(len(self.aisles_content.values()[0]))]
+            for n in range(len(self.aisles_content))
+        ]
+        aisles = [cell for a in self.aisles_list for cell in a]
+
+        width = len(self.aisles_list * 2) + 1
+        height = len(self.aisles_list[0])+3
+        possible_robot = [(0,0),(height-1,width-1)]
         robot = random.choice(possible_robot)
         possible_robot = set(possible_robot)
 
         super(SuperMarket,self).__init__(height,width,aisles,robot)
 
         self.belief = [[1./len(possible_robot) if (r,c) in possible_robot else 0.
-                        for r in range(height)] for c in range(width)]
+                        for c in range(width)] for r in range(height)]
         self.actions = [(0,-1),(1,0),(0,1),(-1,0)]
-        self.p_error = 0.2
+        self.p_error = 0.05
 
         self.targets = set(['oreo','iscream','milk'])
-        self.meats = ['chicken','beef','pork','turkey']
-        self.candy = ['oreo','twix','nutella','kitkat']
-        self.dairy = ['milk','iscream','butter','curd']
-        random.shuffle(self.meats)
-        random.shuffle(self.candy)
-        random.shuffle(self.dairy)
-        meat_candy_dairy = [self.aisle1,self.aisle2,self.aisle3]
-        random.shuffle(meat_candy_dairy)
-        meat_aisle,candy_aisle,dairy_aisle = meat_candy_dairy
 
-        self.obs = dict(zip(meat_aisle,self.meats) + zip(candy_aisle,self.candy) + zip(dairy_aisle,self.dairy))
+        for c in self.aisles_content:
+            random.shuffle(self.aisles_content[c])
+        aisles_order = self.aisles_list[:]
+        random.shuffle(aisles_order)
+        self.obs = {}
+        for prods,aisle in zip(self.aisles_content.values(),aisles_order):
+            self.obs.update(zip(aisle,prods))
 
         # Aisle belief state
         #
-        self.aisles_belief = {
-            1: {'meats': 1./3., 'candy': 1./3., 'dairy': 1./3.},
-            2: {'meats': 1./3., 'candy': 1./3., 'dairy': 1./3.},
-            3: {'meats': 1./3., 'candy': 1./3., 'dairy': 1./3.}
-        }
+        self.aisles_belief = {}
+        aisles_types = self.aisles_content.keys()
+        for a in range(len(self.aisles_list)):
+            self.aisles_belief[a+1] = dict(zip(
+                aisles_types,
+                [1./len(aisles_types)]*len(aisles_types)))
 
         # Inner aisle belief state
         #
-        meat_inner = lambda: dict((m,1./len(self.meats)) for m in self.meats)
-        candy_inner = lambda: dict((c,1./len(self.candy)) for c in self.candy)
-        dairy_inner = lambda: dict((d,1./len(self.dairy)) for d in self.dairy)
-        self.content_belief = {
-            'meats': dict(enumerate([meat_inner() for _ in self.meats])),
-            'candy': dict(enumerate([candy_inner() for _ in self.candy])),
-            'dairy': dict(enumerate([dairy_inner() for _ in self.dairy]))
-        }
+        inner = lambda prods: dict((p,1./len(prods)) for p in prods)
+        self.content_belief = dict(
+            (cat,dict(enumerate([inner(prods) for _ in prods])))
+            for cat,prods in self.aisles_content.items()
+        )
 
         self.images = {
+            'meats'   : pygame.image.load("images/meats.jpg"),
+            'candy'   : pygame.image.load("images/candy.gif"),
+            'dairy'   : pygame.image.load("images/dairy.jpg"),
+            'drink'   : pygame.image.load("images/drink.jpg"),
+            'grain'   : pygame.image.load("images/grain.jpg"),
+
             'chicken' : pygame.image.load("images/chicken.jpg"),
             'pork'    : pygame.image.load("images/pork.jpg"),
             'turkey'  : pygame.image.load("images/turkey.gif"),
@@ -169,46 +172,88 @@ class SuperMarket(Grid):
             'milk'    : pygame.image.load("images/milk.jpg"),
             'curd'    : pygame.image.load("images/curd.jpg"),
             'iscream' : pygame.image.load("images/iscream.jpg"),
-            'butter'  : pygame.image.load("images/butter.jpg")
+            'butter'  : pygame.image.load("images/butter.jpg"),
+
+            'water'   : pygame.image.load("images/water.jpg"),
+            'juice'   : pygame.image.load("images/juice.jpg"),
+            'soda'    : pygame.image.load("images/soda.jpg"),
+            'smoothi' : pygame.image.load("images/smoothi.jpg"),
+
+            'rice'    : pygame.image.load("images/rice.jpg"),
+            'flour'   : pygame.image.load("images/flour.jpg"),
+            'barley'  : pygame.image.load("images/barley.jpg"),
+            'beans'   : pygame.image.load("images/beans.jpg")
         }
 
     def cell_to_aisle(self,(r,c)):
-        return (1,self.aisle1.index((r,c))) if (r,c) in self.aisle1 else \
-            (2,self.aisle2.index((r,c))) if (r,c) in self.aisle2 else \
-            (3,self.aisle3.index((r,c))) if (r,c) in self.aisle3 else \
-            None
+        for i in range(len(self.aisles_list)):
+            if (r,c) in self.aisles_list[i]:
+                return (i+1,self.aisles_list[i].index((r,c)))
+        return None
 
     def category(self, product):
-        return 'meats' if product in self.meats else \
-            'candy' if product in self.candy else \
-            'dairy' if product in self.dairy else \
-            None
+        for c in self.aisles_content:
+            if product in self.aisles_content[c]:
+                return c
+        return None
 
     transformed = False
     def draw(self,surface):
-        # Draw belief
-        #
+        pix_height,pix_width,row_height,col_width = self.dimensions(surface)
+        super(SuperMarket,self).draw(surface)
+        if not self.transformed:
+            for prod in self.images:
+                img = self.images[prod]
+                self.images[prod] = pygame.transform.scale(img.convert(),(col_width,row_height))
+            self.transformed = True
+        for (r,c) in self.aisles:
+            prod = self.obs[(r,c)]
+            img = self.images.get(prod,None)
+            if img is not None:
+                surface.blit(img, dest=(c*col_width,r*row_height))
+
+    def draw_belief(self,surface):
         with self.l:
             belief = [r[:] for r in self.belief]
         pix_height,pix_width,row_height,col_width = self.dimensions(surface)
         for r in range(self.height):
             for c in range(self.width):
-                surface.fill(gray(belief[r][c]),
+                logB = log(belief[r][c]) if belief[r][c] != 0 else -12
+                surface.fill(gray(max((logB+12)/12.0,0)),
                              rect=(c*col_width,r*row_height,col_width,row_height))
-        super(SuperMarket,self).draw(surface)
-        for (r,c) in self.aisles:
-            prod = self.obs[(r,c)]
-            img = self.images[prod]
-            if not self.transformed:
-                self.images[prod] = pygame.transform.scale(img.convert(),(col_width,row_height))
+
+        super(SuperMarket,self).draw(surface,False)
+
+        if not self.transformed:
+            for prod in self.images:
                 img = self.images[prod]
+                self.images[prod] = pygame.transform.scale(img.convert(),(col_width,row_height))
+            self.transformed = True
+
+        for (r,c) in self.aisles:
+            # Are we more than 50% certain about any product here?
+            found = False
+            a,p = self.cell_to_aisle((r,c))
+            for cat in self.aisles_belief[a]:
+                prob_cat = self.aisles_belief[a][cat]
+                if prob_cat > 0.5:
+                    img = self.images.get(cat,None)
+                    found = True
+                    for prod in self.content_belief[cat][p]:
+                        prob = prob_cat*\
+                               self.content_belief[cat][p][prod]
+                        if prob > 0.5:
+                            img = self.images.get(prod,None)
+                            break
+                    break
+            if not found:
+                continue
             surface.blit(img, dest=(c*col_width,r*row_height))
-        self.transformed = True
 
     def action_errors(self,action):
         i = self.actions.index(action)
         l = len(self.actions)
-        return self.actions[(i-1)%l],self.actions[(i+1)%l]
+        return self.actions[(i-1)%l],self.actions[(i+1)%l],(0,0)
 
     def observe(self):
         with self.l:
@@ -220,7 +265,6 @@ class SuperMarket(Grid):
         list(self.targets.discard(o) for o in obs)
         return obs
 
-    EPSILON = 1e-7
     def observation_update(self, observation):
         with self.l:
             belief = [r[:] for r in self.belief]
@@ -230,7 +274,7 @@ class SuperMarket(Grid):
                      for r in range(self.height)
                      for c in range(self.width)
                      for (obs,(dr,dc)) in zip(observation, [(0,-1),(1,0),(0,1),(-1,0)])
-                     if belief[r][c] > self.EPSILON
+                     if belief[r][c] != 0
         ] # (obs,(row,col),parent)
         for (obs,neigh,(r,c)) in obs_cells:
             if self.cell_to_aisle(neigh) is None:

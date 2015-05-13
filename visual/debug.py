@@ -6,6 +6,7 @@ import display
 import sys
 import pygame
 from pygame.locals import *
+import agent
 
 held = None
 def event_handler(e):
@@ -35,11 +36,30 @@ def event_handler(e):
         elif e.key == pygame.K_w and held == 'w':
             held = None
 
-display.event_handler = event_handler
-
 g = SuperMarket()
+a = agent.Agent(g)
+class Count:
+    pass
+def process(every_frames):
+    counter = Count()
+    counter.n = 0
+    def autonomous_action():
+        if counter.n == 0 and len(g.targets) > 0:
+            a._value_iteration()
+            g.set_robot(a.next_action())
+            g.observe()
+        elif len(g.targets) == 0:
+            print "SUCCESS!!!!!!"
+        counter.n = (counter.n+1)%every_frames
+    return autonomous_action
+
+display.event_handler = event_handler
+def go():
+    display.process = process(10)
+
 a1,a2,a3,a4 = g.actions
-display.drawables.append(g.draw)
+display.drawables1.append(g.draw)
+display.drawables2.append(g.draw_belief)
 t = Thread(target=display.main, args=[sys.argv])
 t.start()
 IPython.embed()
