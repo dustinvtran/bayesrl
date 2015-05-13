@@ -12,7 +12,6 @@
 
 \usemintedstyle{trac}
 
-\usepackage{pifont}% http://ctan.org/pkg/pifont
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
 
@@ -150,8 +149,19 @@
 
 \begin{frame}[fragile]
   \frametitle{Our working solver}
+  \begin{itemize}
+  \item Max Probability Value Iteration:
+  \item Choose the most likely state from belief state to run value iteration
+  \end{itemize}
+\end{frame}
 
-  how to do value iteration
+\begin{frame}[fragile]
+  \frametitle{Our working solver}
+  Value iteration:
+  \begin{align*}
+  v_{k+1}(s) &= \max_a \mathbb{E}[R_{t+1} + \gamma v_k(S_{t+1}) \mid S_t = s, A_t = a] \\
+  &= \max_a \sum_{s'} p(s' \mid s,a) [r(s,a,s') + \gamma v_k(s')]
+  \end{align*}
 \end{frame}
 
 \begin{frame}[fragile]
