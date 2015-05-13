@@ -103,7 +103,8 @@ class SuperMarket(Grid):
             'candy': ['oreo','twix','nutella','kitkat'],
             'dairy': ['milk','iscream','butter','curd'],
             'drink': ['water','juice','soda','smoothi'],
-            'grain': ['rice','flour','barley', 'beans']
+            'grain': ['rice','flour','barley', 'beans'],
+            'pasta': ['penne','fusilli','farfalle','lasagna']
         }
 
         self.aisles_list = [
@@ -158,6 +159,7 @@ class SuperMarket(Grid):
             'dairy'   : pygame.image.load("images/dairy.jpg"),
             'drink'   : pygame.image.load("images/drink.jpg"),
             'grain'   : pygame.image.load("images/grain.jpg"),
+            'pasta'   : pygame.image.load("images/pasta.jpg"),
 
             'chicken' : pygame.image.load("images/chicken.jpg"),
             'pork'    : pygame.image.load("images/pork.jpg"),
@@ -182,7 +184,12 @@ class SuperMarket(Grid):
             'rice'    : pygame.image.load("images/rice.jpg"),
             'flour'   : pygame.image.load("images/flour.jpg"),
             'barley'  : pygame.image.load("images/barley.jpg"),
-            'beans'   : pygame.image.load("images/beans.jpg")
+            'beans'   : pygame.image.load("images/beans.jpg"),
+
+            'penne'   : pygame.image.load("images/penne.jpg"),
+            'fusilli' : pygame.image.load("images/fusilli.jpg"),
+            'farfalle': pygame.image.load("images/farfalle.jpg"),
+            'lasagna' : pygame.image.load("images/lasagna.jpg")
         }
 
     def cell_to_aisle(self,(r,c)):
