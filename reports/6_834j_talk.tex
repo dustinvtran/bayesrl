@@ -49,8 +49,7 @@
 \begin{frame}[fragile]
   \frametitle{Background}
 
-  A \emph{partially observable Markov decision process} (POMDP) is a collection
-  of objects $(S,A,\Omega,R,T,O)$
+  A \emph{partially observable Markov decision process} (POMDP) is a tuple $(S,A,\Omega,R,T,O)$
 
   \begin{itemize}
   \item $S$: state space
@@ -75,8 +74,21 @@
 
 \begin{frame}[fragile]
   \frametitle{Background}
-  Belief-state MDP
+  A POMDP induces an equivalent representation as a \emph{belief MDP} with tuple $(B, A, \tau, R)$
 
+  \begin{itemize}
+  \item $B$: set of belief states over the POMDP states
+  \item $A$: action space of original POMDP
+  \item $\tau$: belief state transition operator
+  \begin{equation*}
+  \tau(b, a, b')
+  = \sum_{o\in\Omega} P(b'\mid b, a, o)P(o\mid a, b)
+  \end{equation*}
+  \item $r: B\times A \rightarrow \mathbb{R}$ belief state reward function
+  \begin{equation*}
+  r(b,a) = \sum_{s\in S}b(s)R(s,a)
+  \end{equation*}
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -102,17 +114,40 @@
 \end{frame}
 
 \begin{frame}[fragile]
+  \frametitle{Background}
+
+  Implemented MDP solvers:
+  \begin{itemize}
+  \item Q-learning \alert{(Watkins, 1989)}
+  \item SARSA \alert{(Rummery and Niranjan, 1994)}
+  \item R-MAX \alert{(Brafman and Tennenholtz, 2002)}
+  \item Thompson sampling \alert{(Strens, 2000)}
+  \end{itemize}
+
+  There are a lot more!
+  \begin{itemize}
+  \item Function approximations with adaptive basis functions \alert{(Mnih et
+  al., 2013)}
+  \item BOSS \alert{(Asmuth et al., 2009)}
+  \item Spectral methods \alert{(Boots et al., 2009)}
+  \item Skill chaining \alert{(Konidaris and Barto, 2009)}
+  \item $\cdots$
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{Grocery shopping}
 
   Grid World POMDP
 
   Uncertain movement
 
-  \centerline{\includegraphics[width=0.22\textwidth]{img/uncertain_transition.jpg}}
+  \centerline{\includegraphics[width=0.22\textwidth]{img/uncertain_transition.png}}
 
   Can only see around current cell (partially observable)
 
-  \centerline{\includegraphics[width=0.22\textwidth]{img/partial_obs.jpg}}
+  \centerline{\includegraphics[width=0.22\textwidth]{img/partial_obs.png}}
 
   World is not fully known beforehand
   \begin{itemize}
@@ -141,7 +176,7 @@
   \item Markov assumption is not completely accurate
   \item Bias towards increasing probability of most likely states
     % (state increases observation probability, observation increases state probability)
-  \item
+  %\item
   \end{itemize}
 \end{frame}
 
@@ -149,8 +184,8 @@
 
 \begin{frame}[fragile]
   \frametitle{Our working solver}
+  We encode a \textbf{Max Probability} MDP
   \begin{itemize}
-  \item Max Probability Value Iteration:
   \item Choose the most likely state from belief state to run value iteration
   \end{itemize}
 \end{frame}
@@ -168,9 +203,9 @@
   \frametitle{Failed tasks}
 
   \begin{itemize}
-  \item Value iteration as a belief-state MDP
+  \item Continuous state space in belief MDP: Value iteration
   \item Thompson sampling
-  \item ...
+  \item TD($\lambda$) methods
   \end{itemize}
 \end{frame}
 
