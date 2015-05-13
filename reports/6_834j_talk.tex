@@ -139,7 +139,7 @@
 \begin{frame}[fragile]
   \frametitle{Grocery shopping}
 
-  Grid World POMDP
+  Setup: Grid World POMDP
 
   Uncertain movement
 
@@ -151,7 +151,7 @@
 
   World is not fully known beforehand
   \begin{itemize}
-  \item Model of how items in the same aisle correlate.
+  \item Model of how items in the same aisle correlate
   \item Unknown arrangement of aisles
   \item Unknown arrangement of items within aisles
   \end{itemize}
@@ -160,7 +160,7 @@
 \begin{frame}[fragile]
   \frametitle{Grocery shopping}
 
-  {\it pygame} running the visuals
+  GUI interface: {\it pygame}
 
   Every second:
   \begin{itemize}
@@ -186,7 +186,10 @@
   \frametitle{Our working solver}
   We encode a \textbf{Max Probability} MDP
   \begin{itemize}
-  \item Choose the most likely state from belief state to run value iteration
+  \item Motivated from greedy policies
+  \item Choose the most likely state from belief states as one's position in an
+  MDP
+  \item Solve the MDP!
   \end{itemize}
 \end{frame}
 
