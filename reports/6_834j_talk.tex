@@ -79,7 +79,14 @@
   \begin{itemize}
   \item $B$: set of belief states over the POMDP states
   \item $A$: action space of original POMDP
-  \item $\tau$: belief state transition operator
+  \item $\tau$: belief state transition operator\footnote{
+  Given $b(s)$, after taking action $a$ and observing $o$ (and reaching state
+  $s'$), update belief states
+  \begin{equation}
+  b'(s') = \frac{P(o\mid b,a,s')}{P(o\mid b,a)}=\frac{O(o\mid s',a)\sum_{s\in S} T(s'\mid
+  s,a)b(s)}{\sum_{s'\in S} O(o\mid s',a)\sum_{s\in S}T(s'\mid s,a)b(s)}
+  \end{equation}
+  }
   \begin{equation*}
   \tau(b, a, b')
   = \sum_{o\in\Omega} P(b'\mid b, a, o)P(o\mid a, b)
@@ -89,6 +96,35 @@
   r(b,a) = \sum_{s\in S}b(s)R(s,a)
   \end{equation*}
   \end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Background}
+  A POMDP induces an equivalent representation as a \emph{belief MDP} with tuple $(B, A, \tau, R)$
+
+  \begin{itemize}
+  \item $B$: set of belief states over the POMDP states
+  \item $A$: action space of original POMDP
+  \item $\tau$: belief state transition operator\footnote{
+  \alert{
+  Given $b(s)$, after taking action $a$ and observing $o$ (and reaching state
+  $s'$), update belief states
+  \begin{equation}
+  b'(s') = \frac{P(o\mid b,a,s')}{P(o\mid b,a)}=\frac{O(o\mid s',a)\sum_{s\in S} T(s'\mid
+  s,a)b(s)}{\sum_{s'\in S} O(o\mid s',a)\sum_{s\in S}T(s'\mid s,a)b(s)}
+  \end{equation}
+  }}
+  \begin{equation*}
+  \tau(b, a, b')
+  = \sum_{o\in\Omega} P(b'\mid b, a, o)P(o\mid a, b)
+  \end{equation*}
+  \item $r: B\times A \rightarrow \mathbb{R}$ belief state reward function
+  \begin{equation*}
+  r(b,a) = \sum_{s\in S}b(s)R(s,a)
+  \end{equation*}
+  \end{itemize}
+
 \end{frame}
 
 \begin{frame}[fragile]
