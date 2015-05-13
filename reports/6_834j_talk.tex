@@ -18,7 +18,7 @@
 
 \newcommand{\defeq}{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily def}}}{=}}}
 
-\title{Robot grocery shopping\\(in partially observable settings)}
+\title{Robot grocery shopping in partially observable settings}
 \subtitle{}
 \date{May 13, 2015}
 \author{Rodrigo Gomes, Xiaomin Wang, Dustin Tran}
@@ -32,22 +32,39 @@
   \frametitle{Outline}
 
   \begin{enumerate}
-  \item Background on POMDPs
-  \item Grocery shopping as planning in a POMDP
-  \item Results!
+  \item (2 min) Background on POMDPs, belief-state MDP, MDP solvers we have
+  \item (2 min) Setup: Grocery shopping as planning in a POMDP
+  \item (4 min) Demo
+  \item (2 min) The solver actually used (value iteration)
+  \item (1 min) Things that failed (Thompson sampling)
+  \item (1 min) Q\&A
   \end{enumerate}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Partially observable Markov decision process (POMDPs)}
 
-  background on POMDPs
+  Collection of objects $(S,A,\Omega,R,T,O)$
+
+  \begin{itemize}
+  \item $S$: state space
+  \item $A$: action space
+  \item $\Omega$: observation space
+  \item $T$: transition operator. $T(s' \mid s,a)$ is probability of next state $s'$ given state $s$ and action $a$
+  \item $O$: observable operator. $O(o \mid s)$ is probability of observing
+  $o$ given at state $s$
+  \item $R: S \times A \rightarrow \mathbb{R}$ reward function
+  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Partially observable Markov decision process (POMDPs)}
 
-  the planner we used
+  \begin{figure}[ht]
+  \begin{center}
+  \centerline{\includegraphics[width=1.5\textwidth]{img/agent_environment.png}}
+  \end{center}
+  \end{figure}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -55,6 +72,8 @@
 
   the task in the POMDP framework
 \end{frame}
+
+\plain{demo}
 
 \begin{frame}[fragile]
   \frametitle{Demo}
