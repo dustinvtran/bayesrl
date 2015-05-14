@@ -15,7 +15,7 @@ class Agent(object):
     target_reward: reward for getting a target item
 	reward is -1 on non-target states.
     """
-    def __init__(self, grid, gamma=.95, target_reward=100, aisle_reward=50):
+    def __init__(self, grid, gamma=.92, target_reward=100, aisle_reward=50):
 	self.discount_factor = gamma
 	self.target_reward = target_reward
         self.aisle_reward = aisle_reward

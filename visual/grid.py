@@ -69,7 +69,7 @@ class Grid(object):
         pix_width = surface.get_width()
 
         row_height = int(pix_height/self.height)
-        col_width = int(pix_height/self.width)
+        col_width = int(pix_width/self.width)
 
         return pix_height,pix_width,row_height,col_width
 

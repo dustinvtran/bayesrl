@@ -6,8 +6,8 @@ from colors import *
 
 FPS = 10
 
-WIDTH = 3000
-HEIGHT = 1500
+# WIDTH = 800
+# HEIGHT = 500
 done = False
 
 surface = None
