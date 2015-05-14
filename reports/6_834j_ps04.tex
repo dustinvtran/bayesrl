@@ -35,8 +35,6 @@ these tasks, which is to locate the groceries in the store. Moreover, we work
 under the realistic
 scenario in which the robot can only observe its surroundings (POMDP) rather
 than an understanding of where it precisely is in the store (MDP).
-The robot has a map of the supermarket (it knows where the walls and aisles are), but 
-it does not where items are located on the shelves. 
 
 Given this partially observable setting, the robot should learn how to obtain
 all items in the grocery store and do so in an optimal amount of time. It must
@@ -44,11 +42,63 @@ all items in the grocery store and do so in an optimal amount of time. It must
 2. intelligently search for the items by learning which aisle corresponds to
 which category; and 3. find the optimal path and sequence to obtain all items.
 
+\section{Setup}
+The robot is given a list of items it should find in the supermarket. The supermarket is represented
+by a grid world. It has several aisles containing different categories of goods. 
+The robot has a map of the supermarket (it knows where the walls and aisles are), but 
+it does not where items are located on the shelves. The robot has a perfect sensor, which can
+observe its four neighbors. It can move in four directions, up, down, left, and right. It will
+transition to the intended position 90\% of the time. For the rest of the time, it is equally likely
+to move to any of the permitted direction, except the one opposite the intended direction. The robot
+is equally likely to start the mission in one of the four corners of the supermarket. When the robot
+goes to the grid next to a target item, the item is considered found. It continues moving untill all
+the items have been found. 
+
+
 \section{Procedure}
 \label{sec:procedure}
+The code for the grounded scenario can be found in the \texttt{visual} folder. 
+You can start the simulation by running \texttt{python debug.py}. 
+Create an instance of the robot, and the supermarket by ...
+The robot takes a set of target items. more instruction..........
+
+\subsection{Belief Update}
+
+\subsection{Max Probability Value Iteration}
+We reduce the POMDP to MDP, and solve the MDP using value iteration. At each time step, we assume
+that the robot is at the most likely state based on its belief state. We also generate an
+arrangement of the all items according to the probability distribution of items on the aisles. With
+this information, the robot knows exactly where it is and where everything is. Since it also has the
+transition model, value iteration becomes straightforward. Thus we can find the best action to take
+assuming those are the true state of the world. 
+
+In a way, we are approximating the POMDP with most likely state MDP. Alternatively, we can also
+sample over all possible state according to their probability distribution and run value iteration
+for each of them. We then choose the best action that gives the robot the maximal weighted averaged
+    expected reward. Such sampling can lower the probability of choosing a bad action assuming a
+    completely wrong world state. Thus the robot can make smarter moves, but at the expense of
+    computation power. 
 
 \section{Experiments}
 \label{sec:experiments}
+
+\subsection{Path Planning}
+The robot plans its path intelligently but greedily. As long as there are still targets to be
+retrieved, the robot moves to the state with highest reward. But it does not try to minimize the
+total distance of retrieving all the targets. If the best state at the moment is very far away, but
+there is a target with lower reward closer to the robot, but not on the way to the best state, the
+robot will ignore the closer target and go for the best state. 
+
+One approach to address this non-optimality is to include the remaining target items as part of our state. 
+The reward function will also have to be changed accordingly. However, this will increase the state
+space greatly and slow down the value iteration. 
+
+
+\subsection{Run Time}
+Value iteration runs fairly fast for our problem size. The number of iterations it takes to converge
+depends a lot on the value of the discount factor, \gamma. For example, for a 11 by 7 grid and a
+\gamma value of 0.9, it takes about 90 iterations. If we change \gamma to 0.5, it only takes about
+15 iterations. 
 
 \bibliography{6_834j_ps04}
 \bibliographystyle{plain}
